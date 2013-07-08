@@ -36,84 +36,36 @@
  */
 package org.objectweb.proactive.extensions.amqp.remoteobject;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.objectweb.proactive.extensions.amqp.AMQPConfig;
-import org.objectweb.proactive.utils.TimeoutAccounter;
-
-import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.QueueingConsumer;
 
 
 /**
- * AMQP specification does not provide a way to list existing queues.
- * However the Remote Object Factory is expected to provide such a feature.
- * to overcome the limitation a custom discovery mechanism has been introduced.
- * when created, each remote object binds itself to a particular exchange 
- * # 
+ * Class used to discover remote objects with 'amqp' protocol.
+ * It inherits discover logic from the AbstractFindQueuesRPCClient
+ * and implements logic specific for 'amqp' protocol:
+ * <ul>
+ * <li>ReusableChannel is received using AMQPUtils.getChannel
+ * (to connect to the broker AMQPUtils extracts broker's host/port from the remote object's URL)
+ * <li>temporary reply queue with unique name is created using
+ * standard AMQP method 'queueDeclare' 
+ * </ul>
+ * 
  * @since 5.2.0
  *
  */
-public class FindQueuesRPCClient {
-    private Connection connection;
-    private Channel channel;
-    private String requestQueueName = AMQPConfig.PA_AMQP_QUEUE_PREFIX.getValue() + "*";
-    private String replyQueueName;
-    private QueueingConsumer consumer;
+class FindQueuesRPCClient extends AbstractFindQueuesRPCClient {
 
-    /**
-     *
-     * @param uri contains the address of the broker
-     * @throws Exception
-     */
-    public FindQueuesRPCClient(URI uri) throws Exception {
-
-        channel = AMQPUtils.getChannelToBroker(uri);
-        replyQueueName = channel.queueDeclare().getQueue();
-        consumer = new QueueingConsumer(channel);
-        channel.basicConsume(replyQueueName, true, consumer);
+    @Override
+    protected ReusableChannel getReusableChannel(URI uri) throws IOException {
+        return AMQPUtils.getChannel(uri);
     }
 
-    public List<URI> discover(String exchangeName, long timeout) throws Exception {
-        List<URI> response = new ArrayList<URI>();
-        String corrId = java.util.UUID.randomUUID().toString();
-
-        BasicProperties props = new BasicProperties.Builder().correlationId(corrId).replyTo(replyQueueName)
-                .type(AMQPConfig.PA_AMQP_DISCOVERY_QUEUES_MESSAGE_TYPE.getValue()).build();
-
-        channel.basicPublish(exchangeName, "", props, "".getBytes());
-
-        TimeoutAccounter time = TimeoutAccounter.getAccounter(timeout);
-
-        while (!time.isTimeoutElapsed()) {
-            QueueingConsumer.Delivery delivery = consumer.nextDelivery(200);
-            if ((delivery != null) && (delivery.getProperties().getCorrelationId().equals(corrId))) {
-                URI u = URI.create(new String(delivery.getBody()));
-                response.add(u);
-            }
-        }
-
-        return response;
+    @Override
+    protected String createReplyQueue(Channel channel) throws IOException {
+        return channel.queueDeclare().getQueue();
     }
 
-    //    public void close() throws Exception {
-    //	try {
-    //
-    //	    if (channel != null) {
-    //		if ( channel.getConnection().isOpen()) {
-    //		    channel.getConnection().close() ;
-    //		}
-    //		if ( channel.isOpen() ) {
-    //		    channel.close();
-    //		}
-    //	    }
-    //	} catch (Throwable e) {
-    //	    e.printStackTrace();
-    //	}
-    //
-    //    }
 }

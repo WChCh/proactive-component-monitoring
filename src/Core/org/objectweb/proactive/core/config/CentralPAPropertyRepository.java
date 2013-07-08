@@ -305,6 +305,9 @@ public class CentralPAPropertyRepository implements PAPropertiesLoaderSPI {
     static public PAPropertyString JAVA_RMI_SERVER_CODEBASE = new PAPropertyString(
         "java.rmi.server.codebase", true);
 
+    static public PAPropertyBoolean JAVA_RMI_SERVER_USECODEBASEONLY = new PAPropertyBoolean(
+        "java.rmi.server.useCodebaseOnly", true, false);
+
     /**
      * Sockets used by the RMI remote object factory connect to the remote server
      * with a specified timeout value. A timeout of zero is interpreted as an infinite timeout.
@@ -701,7 +704,7 @@ public class CentralPAPropertyRepository implements PAPropertiesLoaderSPI {
      * starts it pings a given web server.
      */
     static public PAPropertyBoolean PA_RUNTIME_PING = new PAPropertyBoolean("proactive.runtime.ping", false,
-        false);
+        true);
     /**
      * the url to ping
      */

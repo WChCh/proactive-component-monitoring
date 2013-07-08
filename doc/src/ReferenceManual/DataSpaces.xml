@@ -24,13 +24,16 @@
     </para>
     <para>
         <figure xml:id="ds_tree">
-            <info><title>Abstract VFS layer used in Data Spaces (simplified). Each space is described by URI path that resolves to underneath physical protocol.</title></info>
+            <info><title>Abstract VFS layer used in Data Spaces (simplified). Each space is described by URI path that resolves to underneath physical protocols.</title></info>
            <mediaobject><imageobject><imagedata scalefit="1" width="50%" contentdepth="50%" fileref="images/png/dataspaces-layer.png" format="PNG"/></imageobject></mediaobject>
         </figure>
     </para>
+    <para>
+        Every file in Data Spaces API is identified by an unique virtual URI. A given file can be accessed via several protocols at once if the data space was created using several physical protocols.
+    </para>
 
     <para>
-        Every file in Data Spaces API is identified by an unique URI. It can be shared between Active Objects even if they reside on different nodes. Files are organized in data stores called data spaces, grouped by their purpose and access. To access a file one can use designated data space to resolve file's name or directly resolve URI received from another Active Object.
+        The URI can be shared between Active Objects even if they reside on different nodes. Files are organized in data stores called data spaces, grouped by their purpose and access. To access a file one can use designated data space to resolve file's name or directly resolve URI received from another Active Object.
     </para>
     <para>
         There are distinguished three different space types: input space with files used as the application's input data, output space for storing the application's result files and scratch space for temporary files with the intermediate results of the computations. Spaces types differ in the access rights, and therefore input is only meant for read operations, output for read and write as well, whereas scratch's access mode depends on the caller. If a calling thread is an owner of a particular scratch, then it can perform both read and write operations. On the other hand, if a calling thread is not an owner (eg. has received URI from another Active Object), its access is limited to read only operations.
@@ -227,6 +230,11 @@ VFS URL of this provider: paprmi://branch.inria.fr:1099/defaultFileSystemServer?
                     </listitem>
                 </itemizedlist>
             </para>
+			<para>
+				ProActive system properties (see <xref linkend="ProActiveproperties_69" /> for details) can also be set using command line
+				(-Dproperty=value). For instance, the port can be configured using
+				-Dproactive.rmi.port=1099 given that RMI is used.
+			</para>
         </section>
     </section>
 
@@ -259,7 +267,7 @@ VFS URL of this provider: paprmi://branch.inria.fr:1099/defaultFileSystemServer?
                 <programlisting language="java"><textobject><textdata fileref="automatic_snippets/DataSpacesManualConfig_RegisteringApp.snip"/></textobject></programlisting>
             </para>
             <para>
-                When application terminates, it should be deconfigured by  <emphasis>unregistering</emphasis> itself from Naming Service:
+                When application terminates, it should be deconfigured by <emphasis>unregistering</emphasis> itself from Naming Service:
                 <programlisting language="java"><textobject><textdata fileref="automatic_snippets/DataSpacesManualConfig_UnregisteringApp.snip"/></textobject></programlisting>
             </para>
             <para>
@@ -410,15 +418,15 @@ VFS URL of this provider: paprmi://branch.inria.fr:1099/defaultFileSystemServer?
             Finally, let's have a look at routines that are performed by Active Objects instantiated from the <literal>ExampleProcessing</literal> class (<xref linkend="ds_example_processing1" /> , refer to comments for the routines' explanation. There are two main processing methods <literal>computePartials</literal> and <literal>gatherPartials</literal> shown, along with the <literal>writeIntoScratchFile</literal> helper method.
             </para>
             <example xml:id="ds_example_processing1">
-                <info><title>ExampleProcessing.java: routines perfomed by Active Objects (1)</title></info>
+                <info><title>ExampleProcessing.java: routines performed by Active Objects (1)</title></info>
                 <programlisting language="java"><textobject><textdata fileref="automatic_snippets/DataSpacesExample_processing1.snip"/></textobject></programlisting>
             </example>
             <example xml:id="ds_example_processing2">
-                <info><title>ExampleProcessing.java: routines perfomed by Active Objects (2)</title></info>
+                <info><title>ExampleProcessing.java: routines performed by Active Objects (2)</title></info>
                 <programlisting language="java"><textobject><textdata fileref="automatic_snippets/DataSpacesExample_processing2.snip"/></textobject></programlisting>
             </example>
             <example xml:id="ds_example_processing3">
-                <info><title>ExampleProcessing.java: routines perfomed by Active Objects (3)</title></info>
+                <info><title>ExampleProcessing.java: routines performed by Active Objects (3)</title></info>
                 <programlisting language="java"><textobject><textdata fileref="automatic_snippets/DataSpacesExample_processing3.snip"/></textobject></programlisting>
             </example>
         </section>

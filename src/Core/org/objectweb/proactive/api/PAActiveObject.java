@@ -1168,7 +1168,7 @@ public class PAActiveObject {
      *            the active object to kill
      * @param immediate
      *            if this boolean is true, this method is served as an immediate service. The
-     *            termination is then synchronous. The active object dies immediatly. Else, the kill
+     *            termination is then synchronous. The active object dies immediately. Else, the kill
      *            request is served as a normal request, it is put on the request queue. The
      *            termination is asynchronous.
      */
@@ -1202,7 +1202,7 @@ public class PAActiveObject {
      * 
      * @param immediate
      *            if this boolean is true, this method is served as an immediate service. The
-     *            termination is then synchronous. The active object dies immediatly. Else, the kill
+     *            termination is then synchronous. The active object dies immediately. Else, the kill
      *            request is served as a normal request, it is put on the request queue. The
      *            termination is asynchronous.
      */
@@ -1510,6 +1510,7 @@ public class PAActiveObject {
      */
     public static Object lookupActive(String classname, String url) throws ActiveObjectCreationException,
             java.io.IOException {
+        logger.debug("Trying to lookup " + url);
         RemoteObject<?> rmo;
         URI uri = RemoteObjectHelper.expandURI(URI.create(url));
 
@@ -1670,6 +1671,10 @@ public class PAActiveObject {
     }
 
     private static UniversalBody getRemoteBody(Object obj) {
+        // Check if obj is a body and return the remote
+        if (obj instanceof UniversalBody) {
+            return ((UniversalBody) obj).getRemoteAdapter();
+        }
         // Check if obj is really a reified object
         if (!(MOP.isReifiedObject(obj))) {
             throw new ProActiveRuntimeException("The given object " + obj + " is not a reified object");

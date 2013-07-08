@@ -39,10 +39,11 @@ package org.objectweb.proactive.extensions.amqp.remoteobject;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.net.SocketFactory;
+
+import org.objectweb.proactive.core.ssh.SshTunnelSocketFactory;
 import org.objectweb.proactive.core.util.URIBuilder;
 import org.objectweb.proactive.extensions.amqp.AMQPConfig;
-
-import com.rabbitmq.client.Channel;
 
 
 /**
@@ -52,47 +53,65 @@ import com.rabbitmq.client.Channel;
  */
 public class AMQPUtils {
 
+    private static final ConnectionAndChannelFactory connectionFactory;
+
+    static {
+        SocketFactory socketFactory;
+        if (AMQPConfig.PA_AMQP_SOCKET_FACTORY.isSet() &&
+            "ssh".equals(AMQPConfig.PA_AMQP_SOCKET_FACTORY.getValue())) {
+            socketFactory = new SshTunnelSocketFactory(AMQPConfig.PA_AMQP_SSH_KEY_DIR,
+                AMQPConfig.PA_AMQP_SSH_KNOWN_HOSTS, AMQPConfig.PA_AMQP_SSH_REMOTE_PORT,
+                AMQPConfig.PA_AMQP_SSH_REMOTE_USERNAME);
+        } else {
+            socketFactory = null;
+        }
+        connectionFactory = new ConnectionAndChannelFactory(socketFactory);
+    }
+
+    private static final String QUEUE_PREFIX = "proactive.remoteobject.";
+
     /**
-     *
-     * @param remoteObjectURL
-     * @return
+     * build an AMQP queue name from the remote object's name used in Programming
      */
-    public static String computeQueueNameFromUrl(String remoteObjectURL) {
-        String name = URIBuilder.getNameFromURI(remoteObjectURL);
-        return computeQueueNameFromName(name);
+    public static String computeQueueNameFromURI(URI uri) {
+        return QUEUE_PREFIX + URIBuilder.getNameFromURI(uri);
     }
 
-    /**
-     * build an AMQP queue name from the name used in Programming
-     */
-    public static String computeQueueNameFromName(String name) {
-        return AMQPConfig.PA_AMQP_QUEUE_PREFIX.getValue() + name;
+    static ReusableChannel getChannel(URI uri) throws IOException {
+        return connectionFactory.getChannel(getConnectionParameters(uri));
     }
 
-    public static String generateNewExchange(String name) {
-        return AMQPConfig.PA_AMQP_QUEUE_PREFIX.getValue() + name + "." +
-            java.util.UUID.randomUUID().toString();
+    static RpcReusableChannel getRpcChannel(URI uri) throws IOException {
+        return connectionFactory.getRpcChannel(getConnectionParameters(uri));
     }
 
-    public static Channel getChannelToBroker(URI uri) throws IOException {
+    private static AMQPConnectionParameters getConnectionParameters(URI uri) {
+        String host = getBrokerHost(uri);
+        int port = getBrokerPort(uri);
+        String username = AMQPConfig.PA_AMQP_BROKER_USER.getValue();
+        String password = AMQPConfig.PA_AMQP_BROKER_PASSWORD.getValue();
+        String vhost = AMQPConfig.PA_AMQP_BROKER_VHOST.getValue();
+        return new AMQPConnectionParameters(host, port, username, password, vhost);
+    }
 
+    private static String getBrokerHost(URI uri) {
         String host = URIBuilder.getHostNameFromUrl(uri);
         if ((host == null) || (host.isEmpty())) {
             if (AMQPConfig.PA_AMQP_BROKER_ADDRESS.isSet()) {
                 host = AMQPConfig.PA_AMQP_BROKER_ADDRESS.getValue();
             }
         }
+        return host;
+    }
 
+    private static int getBrokerPort(URI uri) {
         int port = URIBuilder.getPortNumber(uri);
         if (port == 0) {
             if (AMQPConfig.PA_AMQP_BROKER_PORT.isSet()) {
                 port = AMQPConfig.PA_AMQP_BROKER_PORT.getValue();
             }
         }
-
-        Channel channel = ConnectionAndChannelFactory.getInstance().getChannel(host, port, false);
-
-        return channel;
+        return port;
     }
 
 }

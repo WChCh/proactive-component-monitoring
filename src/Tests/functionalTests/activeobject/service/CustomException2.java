@@ -1,11 +1,10 @@
 /*
- * ################################################################
- *
+ *  *
  * ProActive Parallel Suite(TM): The Java(TM) library for
  *    Parallel, Distributed, Multi-Core Computing for
  *    Enterprise Grids & Clouds
  *
- * Copyright (C) 1997-2012 INRIA/University of
+ * Copyright (C) 1997-2011 INRIA/University of
  *                 Nice-Sophia Antipolis/ActiveEon
  * Contact: proactive@ow2.org or contact@activeeon.com
  *
@@ -27,20 +26,18 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  *
- *  Initial developer(s):               The ActiveEon Team
- *                        http://www.activeeon.com/
+ *  Initial developer(s):               The ProActive Team
+ *                        http://proactive.inria.fr/team_members.htm
  *  Contributor(s):
  *
- * ################################################################
- * $$ACTIVEEON_INITIAL_DEV$$
+ *  * $$PROACTIVE_INITIAL_DEV$$
  */
-package org.objectweb.proactive.extensions.amqp.remoteobject;
+package functionalTests.activeobject.service;
 
 /**
- * AMQP Exception 
- * @since ProActive 5.2.0
+ * CustomException
+ *
+ * @author The ProActive Team
  */
-
-public class AMQPException extends Exception {
-
+public class CustomException2 extends Exception {
 }

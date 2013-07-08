@@ -19,9 +19,9 @@
     <para>Distribution is often used for CPU-intensive applications where
     parallelism is a key for performance. The parallelization of programs can be facilitated with
     ProActive, thanks to asynchronous method calls (see
-	<link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://proactive.inria.fr/trunk/Programming/ReferenceManual/multiple_html/ActiveObjectCreation.html#FutureObjectCreation">Asynchronous calls and futures</link>),
+	<link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../../ReferenceManual/multiple_html/ActiveObjectCreation.html#FutureObjectCreation">Asynchronous calls and futures</link>),
 	as well as group communications (see
-	<link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://proactive.inria.fr/trunk/Programming/ReferenceManual/multiple_html/TypedGroupCommunication.html">Typed Group Communication</link>).</para>
+	<link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../../ReferenceManual/multiple_html/TypedGroupCommunication.html">Typed Group Communication</link>).</para>
 
     <para>To illustrate how parallelization can be used for computationally
     intensive tasks, we have built the C3D application.
@@ -268,8 +268,8 @@
     active objects is running and without interruptions in the application.</para>
 
 
-    <para>The penguin migration example shows how a set of <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://proactive.inria.fr/index.php?page=penguin">mobile
-    agents</link> can move around from machine to machine while
+    <para>The penguin migration example shows how a set of mobile
+    agents can move around from machine to machine while
     still communicating with their base and
     with each other. It also features the ability to move a swing window
     between screens while moving an agent from one JVM to the other.</para>
@@ -781,7 +781,7 @@ Enter the number of iterations (0 to exit) :  </screen>
                     <para>
                         <emphasis role="bold">-3d</emphasis>
                         starting GUI in 3D, must have
-                        <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://java3d.dev.java.net/">
+                        <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.oracle.com/technetwork/java/javase/tech/index-jsp-138252.html">
                             Java3d
                         </link>
                         (≥ 1.4) installed and also must have ProActive
