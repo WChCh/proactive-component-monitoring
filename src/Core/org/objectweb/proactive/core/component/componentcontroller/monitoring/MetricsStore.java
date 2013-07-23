@@ -72,7 +72,7 @@ public interface MetricsStore {
 	 */
 	Object calculate(String name, Object[] params);
 	
-	Object getValue(String name);
+	MetricValue getValue(String name);
 	
 	void setValue(String name, Object v);
 	

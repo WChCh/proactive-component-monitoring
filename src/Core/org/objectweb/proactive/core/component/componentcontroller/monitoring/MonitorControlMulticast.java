@@ -123,9 +123,10 @@ public interface MonitorControlMulticast {
     List<String> getMonitoredComponentName();
     
     void addMetric(String name, Metric<?> metric);
+    void addMetric(String name, Metric<?> metric, String compName);
     List<Object> runMetric(String name);
     //List<Object> runMetric(String name, Object[] params);
-    List<Object> getMetricValue(String name);
+    List<MetricValue> getMetricValue(String name);
     
     List<List<String>> getMetricList();
 	

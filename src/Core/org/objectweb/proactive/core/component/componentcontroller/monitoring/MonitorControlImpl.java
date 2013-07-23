@@ -159,6 +159,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 
 	@Override
 	public void startGCMMonitoring() {
+		if(started) return;
 		started = true;
 		logger.debug("[Monitor Control] Start ... ");
 		String hostComponentName = null;
@@ -177,6 +178,13 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		this.eventControl.start();
 		this.recordStore.init();
 		this.metricsStore.init();
+		
+		for(MonitorControl internal : internalMonitors.values())
+			internal.startMonitoring();
+		for(MonitorControl external : externalMonitors.values())
+			external.startMonitoring();
+		for(MonitorControlMulticast externalMulticast : externalMonitorsMulticast.values())
+			externalMulticast.startMonitoring();
 	}
 
 	@Override
@@ -611,6 +619,31 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	}
 
 	@Override
+	public void addMetric(String name, Metric<?> metric, String compName) {
+		if(hostComponent.getComponentParameters().getName().equals(compName)){
+			addMetric(name, metric);
+			return;
+		}
+		/* too slow...
+		for(MonitorControl internal : internalMonitors.values())
+			internal.addMetric(name, metric, compName);
+		for(MonitorControl external : externalMonitors.values())
+			external.addMetric(name, metric, compName);
+		for(MonitorControlMulticast externalMulticast : externalMonitorsMulticast.values())
+			externalMulticast.addMetric(name, metric, compName);
+		*/
+		MonitorControl child = findMonitorControl(compName);
+		if(child == null) { 
+			for(MonitorControl internal : internalMonitors.values()) {
+				internal.addMetric(name, metric, compName);
+			}
+			return;
+		}
+		System.out.println("Component " + compName + " found! Metric " + name + " will be added.");
+		child.addMetric(name, metric);
+	}
+
+	@Override
 	public Object runMetric(String name) {
 		return metricsStore.calculate(name);
 	}
@@ -626,8 +659,28 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	}
 
 	@Override
-	public Object getMetricValue(String name) {
-		return metricsStore.getValue(name);
+	public MetricValue getMetricValue(String name) {
+		MetricValue result = metricsStore.getValue(name);
+		if(result.isLocated()) {
+			return result;
+		} else {
+			System.out.println(">>> [" + hostComponent.getComponentParameters().getName() + "] metric " + name + " not found, looking around..");
+			for(MonitorControl mc : externalMonitors.values()) {
+				if(mc.isMonitoringStarted().getBooleanValue()) {
+					if((result = mc.getMetricValue(name)).isLocated())
+						return result;
+				}
+			}
+			for(MonitorControl mc : internalMonitors.values()) {
+				if(mc.isMonitoringStarted().getBooleanValue()) {
+					if((result = mc.getMetricValue(name)).isLocated())
+						return result;
+				}
+			}
+			
+			// TODO: support multicast
+		}
+		return new MetricValue(null, false);
 	}
 
 

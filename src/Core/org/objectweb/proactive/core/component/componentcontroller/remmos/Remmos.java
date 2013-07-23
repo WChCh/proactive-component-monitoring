@@ -180,14 +180,15 @@ public class Remmos {
 			// Support client-singleton, and client-multicast interfaces
 			String itfName;
 			for(PAGCMInterfaceType itfType : fItfType) {
+				if(!itfType.isFcClientItf()) continue;
 				// add a client-singleton interface
-				if(itfType.isFcClientItf() && itfType.isGCMSingletonItf() && !itfType.isGCMCollectiveItf()) {
+				if((itfType.isGCMSingletonItf() && !itfType.isGCMCollectiveItf()) || itfType.isGCMGathercastItf()) {
 					itfName = itfType.getFcItfName() + "-external-" + Constants.MONITOR_CONTROLLER;
 					pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY);
 					typeList.add(pagcmItfType);
 				}
 				// add a multicast client interface
-				if(itfType.isGCMMulticastItf()) {
+				else if(itfType.isGCMMulticastItf()) {
 					itfName = itfType.getFcItfName() + "-external-" + Constants.MONITOR_CONTROLLER;
 					pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorControlMulticast.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.MULTICAST_CARDINALITY);
 					typeList.add(pagcmItfType);
@@ -343,20 +344,19 @@ public class Remmos {
 		// bindings between the Monitor Component and the external client NF monitoring interfaces
 		// one binding from MONITOR_SERVICE_COMP for each client binding (maybe optional or mandatory)
 		// collective and multicast/gathercast interfaces not supported (yet)
-		String itfName;
-		String clientItfName;
-		String serverItfName;
+		String itfName, clientItfName, serverItfName;
 		InterfaceType[] fItfType = ((PAComponent) component).getComponentParameters().getInterfaceTypes();
 		for(InterfaceType itfType : fItfType) {
+			if(!itfType.isFcClientItf()) continue;
 			// client-singleton
-			if(itfType.isFcClientItf() && ((PAGCMInterfaceType)itfType).isGCMSingletonItf() && !((PAGCMInterfaceType)itfType).isGCMCollectiveItf()) {
+			if((((PAGCMInterfaceType)itfType).isGCMSingletonItf() && !((PAGCMInterfaceType)itfType).isGCMCollectiveItf()) || ((PAGCMInterfaceType)itfType).isGCMGathercastItf()) {
 				itfName = itfType.getFcItfName();
 				clientItfName = itfName+"-external-"+MONITOR_SERVICE_ITF;
 				serverItfName = itfName+"-external-"+Constants.MONITOR_CONTROLLER;
 				membrane.nfBindFc(MONITOR_SERVICE_COMP+"."+clientItfName, serverItfName);
 			}
 			// client-multicast
-			if(itfType.isFcClientItf() && ((PAGCMInterfaceType)itfType).isGCMMulticastItf() ) {
+			else if(((PAGCMInterfaceType)itfType).isGCMMulticastItf() ) {
 				itfName = itfType.getFcItfName();
 				clientItfName = itfName+"-external-"+MONITOR_SERVICE_ITF;
 				serverItfName = itfName+"-external-"+Constants.MONITOR_CONTROLLER;
@@ -645,8 +645,9 @@ public class Remmos {
 		String itfName;
 		InterfaceType[] fItfType = ((PAComponent) component).getComponentParameters().getInterfaceTypes();
 		for(InterfaceType itfType : fItfType) {
+			if(!itfType.isFcClientItf()) continue;
 			// only client-singleton supported ... others ignored
-			if(itfType.isFcClientItf() && ((PAGCMInterfaceType)itfType).isGCMSingletonItf() && !((PAGCMInterfaceType)itfType).isGCMCollectiveItf()) {
+			if((((PAGCMInterfaceType)itfType).isGCMSingletonItf() && !((PAGCMInterfaceType)itfType).isGCMCollectiveItf()) || ((PAGCMInterfaceType)itfType).isGCMGathercastItf()) {
 				itfName = itfType.getFcItfName() + "-external-"+MONITOR_SERVICE_ITF;
 				try {
 					monitorServiceItfTypeList.add(patf.createGCMItfType(itfName, MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
@@ -654,7 +655,7 @@ public class Remmos {
 					e.printStackTrace();
 				}
 			}
-			if(((PAGCMInterfaceType)itfType).isGCMMulticastItf() ) {
+			else if(((PAGCMInterfaceType)itfType).isGCMMulticastItf() ) {
 				itfName = itfType.getFcItfName() + "-external-"+MONITOR_SERVICE_ITF;
 				logger.debug("   There is a MULTICAST client itf! The Monitor Component should have the MULTICAST client interface: "+ itfName);
 				try {
@@ -962,7 +963,7 @@ public class Remmos {
 				
 				
 				// For Singleton interfaces
-				if( ((PAGCMInterfaceType)itfType).isGCMSingletonItf() ) {
+				if(((PAGCMInterfaceType)itfType).isGCMSingletonItf() || ((PAGCMInterfaceType)itfType).isGCMGathercastItf()) {
 
 					try {
 						destItfOwner = ((PAInterface) bc.lookupFc(itfName)).getFcItfOwner();

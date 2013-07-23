@@ -113,9 +113,10 @@ public interface MonitorControl  {
     String getMonitoredComponentName();
     
     void addMetric(String name, Metric<?> metric);
+    void addMetric(String name, Metric<?> metric, String compName);
     Object runMetric(String name);
     //Object runMetric(String name, Object[] params);
-    Object getMetricValue(String name);
+    MetricValue getMetricValue(String name);
     
     List<String> getMetricList();
 	
