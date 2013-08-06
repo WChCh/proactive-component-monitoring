@@ -122,8 +122,6 @@
 	<classpathentry kind="lib" path="lib/xercesImpl-2.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/xmlrpc-client-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xmlrpc-common-3.1.jar"/>
-	<classpathentry kind="lib" path="/PAGCMScript/pagcmscript-1.0.jar"/>
-	<classpathentry kind="lib" path="/PAGCMScript/lib/fscript-2.1.2-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/cxf/cxf-2.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/cxf/jaxb-api-2.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/cxf/jaxb-impl-2.2.4-1.jar"/>
@@ -141,5 +139,7 @@
 	<classpathentry kind="lib" path="lib/cxf/wsdl4j-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/cxf/xmlschema-core-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/winp-1.17-patched.jar"/>
+	<classpathentry kind="lib" path="lib/fscript-2.1.2-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/pagcmscript-1.0.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
