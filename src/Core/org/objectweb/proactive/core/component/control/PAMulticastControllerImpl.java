@@ -245,7 +245,7 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
         }
 
         try {
-        	multicastLogger.debug("   INIT_MC: Adding reference of interface "+ itfType.getFcItfName() );
+        	//multicastLogger.debug("   INIT_MC: Adding reference of interface "+ itfType.getFcItfName() );
             PAInterface multicastItf = (PAInterface) owner.getFcInterface(itfType.getFcItfName());
             multicastItfs.put(itfType.getFcItfName(), multicastItf);
         } catch (NoSuchInterfaceException e) {
