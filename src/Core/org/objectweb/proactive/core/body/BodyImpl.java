@@ -914,8 +914,8 @@ public abstract class BodyImpl extends AbstractBody implements java.io.Serializa
                                     .getSequenceNumber(), tagNotification));
 //                    }
 //                }
-                        // mibanez: this.getName() not implemented
-                        // BodyImpl.CMlogger.debug("REQUEST SENT (BodyImpl) from ["+ this.getName() +"] to ["+ destinationBody.getID() +"], tags "+ tags);
+                        // fviale: commit 82d75f1: method getName is moved from LocalBodyProxy to UniversalBody
+                        BodyImpl.CMlogger.debug("REQUEST SENT (BodyImpl) from ["+ BodyImpl.this.getName() +"] to ["+ destinationBody.getID() +"], tags "+ tags);
 
                         //cruz: debug
                         if(BodyImpl.this instanceof ComponentBodyImpl) {

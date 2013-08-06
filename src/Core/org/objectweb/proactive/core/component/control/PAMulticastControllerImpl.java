@@ -47,7 +47,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
 import org.etsi.uri.gcm.api.type.GCMInterfaceType;
 import org.etsi.uri.gcm.util.GCM;
 import org.objectweb.fractal.api.Component;
@@ -84,24 +83,33 @@ import org.objectweb.proactive.core.mop.MethodCall;
 import org.objectweb.proactive.core.mop.Proxy;
 import org.objectweb.proactive.core.mop.StubObject;
 import org.objectweb.proactive.core.util.SerializableMethod;
-import org.objectweb.proactive.core.util.log.Loggers;
-import org.objectweb.proactive.core.util.log.ProActiveLogger;
 
 
+/**
+ * Implementation of the {@link PAMulticastController multicast controller}.
+ * 
+ * @author The ProActive Team
+ */
 public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceController implements
         PAMulticastController, Serializable, ControllerStateDuplication {
-    private static Logger logger = ProActiveLogger.getLogger(Loggers.COMPONENTS_CONTROLLERS);
-    private static Logger multicastLogger = ProActiveLogger.getLogger(Loggers.COMPONENTS_MULTICAST);
     private Map<String, PAInterface> multicastItfs = new HashMap<String, PAInterface>();
     private Map<String, Proxy> clientSideProxies = new HashMap<String, Proxy>();
     // Mapping between methods of client side and methods of server side
     // Map<clientSideItfName, Map<serverSideItfSignature, Map<clientSideMethod, serverSideMethod>>>
     private Map<String, Map<String, Map<SerializableMethod, SerializableMethod>>> matchingMethods = new HashMap<String, Map<String, Map<SerializableMethod, SerializableMethod>>>();
 
+    /**
+     * Creates a {@link PAMulticastControllerImpl}.
+     * 
+     * @param owner Component owning the controller.
+     */
     public PAMulticastControllerImpl(Component owner) {
         super(owner);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void initController() {
         // this method is called once the component is fully instantiated with all its interfaces created
@@ -134,10 +142,9 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
     }
 
     /**
-     * client and server interfaces must have the same methods, except that
-     * the client methods always returns a java.util.List<E>, whereas
-     * the server methods return E. (for multicast interfaces)
+     * {@inheritDoc}
      */
+    @Override
     public void ensureGCMCompatibility(InterfaceType itfType, Interface itf) throws IllegalBindingException {
         try {
             Map<String, Map<SerializableMethod, SerializableMethod>> matchingMethodsForThisClientItf = matchingMethods
@@ -212,6 +219,9 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void setControllerItfType() {
         try {
@@ -235,7 +245,7 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
         }
 
         try {
-        	multicastLogger.debug("   INIT_MC: Adding reference of interface "+ itfType.getFcItfName() );
+        	//multicastLogger.debug("   INIT_MC: Adding reference of interface "+ itfType.getFcItfName() );
             PAInterface multicastItf = (PAInterface) owner.getFcInterface(itfType.getFcItfName());
             multicastItfs.put(itfType.getFcItfName(), multicastItf);
         } catch (NoSuchInterfaceException e) {
@@ -252,11 +262,10 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
         return clientSideProxy.getDelegatee();
     }
 
-    /*
-     * @see
-     * org.objectweb.proactive.core.component.control.PAMulticastController#bindGCMMulticast
-     * (java.lang.String, org.objectweb.fractal.api.Interface)
+    /**
+     * {@inheritDoc}
      */
+    @Override
     public void bindGCMMulticast(String multicastItfName, Object serverItf) {
         try {
             // bindFcMulticast is just a renaming of the bindFc method in the BindingController
@@ -264,29 +273,30 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
             // the specific part is in the bindFc method in this class
             GCM.getBindingController(owner).bindFc(multicastItfName, serverItf);
         } catch (NoSuchInterfaceException e) {
-            logger.warn("No such interface: " + multicastItfName, e);
+            controllerLogger.warn("No such interface: " + multicastItfName, e);
         } catch (IllegalBindingException e) {
-            logger.warn("Illegal binding between " + multicastItfName + " and " +
+            controllerLogger.warn("Illegal binding between " + multicastItfName + " and " +
                 ((Interface) serverItf).getFcItfName(), e);
         } catch (IllegalLifeCycleException e) {
-            logger.warn("Illegal life cycle component for binding " + multicastItfName + " and " +
+            controllerLogger.warn("Illegal life cycle component for binding " + multicastItfName + " and " +
                 ((Interface) serverItf).getFcItfName(), e);
         }
     }
 
-    /*
-     * @see org.etsi.uri.gcm.api.control.MulticastController#unbindGCMMulticast(java.lang.String,
-     * org.objectweb.fractal.api.Interface)
+    /**
+     * {@inheritDoc}
      */
+    @Override
     public void unbindGCMMulticast(String multicastItfName, Object serverItf) throws NoSuchInterfaceException {
         if (multicastItfs.containsKey(multicastItfName)) {
             Group<PAInterface> g = getDelegatee(multicastItfName);
             //PAInterface itf = multicastItfs.get(clientItfName);
             //Group<PAInterface> g = PAGroup.getGroup(itf);
             if (g.remove(serverItf)) {
-                logger.debug("removed connected interface from multicast interface : " + multicastItfName);
+                controllerLogger.debug("removed connected interface from multicast interface : " +
+                    multicastItfName);
             } else {
-                logger.error("cannot remove connected interface from multicast interface : " +
+                controllerLogger.error("cannot remove connected interface from multicast interface : " +
                     multicastItfName);
             }
         } else {
@@ -294,9 +304,10 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
         }
     }
 
-    /*
-     * @see org.etsi.uri.gcm.api.control.MulticastController#lookupGCMMulticast(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
+    @Override
     public Object[] lookupGCMMulticast(String multicastItfName) throws NoSuchInterfaceException {
         if (multicastItfs.containsKey(multicastItfName)) {
             ProxyForComponentInterfaceGroup delegatee = ((ProxyForComponentInterfaceGroup) ((PAInterface) multicastItfs
@@ -488,10 +499,10 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
     }
 
     protected void bindFc(String clientItfName, PAInterface serverItf) {
-        if (multicastLogger.isDebugEnabled()) {
+        if (controllerLogger.isDebugEnabled()) {
             try {
                 if (!PAGroup.isGroup(serverItf.getFcItfOwner())) {
-                    multicastLogger.debug("multicast binding : " + clientItfName + " to : " +
+                    controllerLogger.debug("multicast binding : " + clientItfName + " to : " +
                         GCM.getNameController(serverItf.getFcItfOwner()).getFcName() + "." +
                         serverItf.getFcItfName());
                 }
@@ -521,6 +532,10 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isBoundTo(String multicastItfName, Object[] serverItfs) throws NoSuchInterfaceException {
         if (clientSideProxies.containsKey(multicastItfName)) {
             ProxyForComponentInterfaceGroup clientSideProxy = (ProxyForComponentInterfaceGroup) clientSideProxies
@@ -551,6 +566,10 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
         clientSideProxies.put(itfName, proxy);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void duplicateController(Object c) {
         if (c instanceof MulticastItfState) {
 
@@ -565,6 +584,10 @@ public class PAMulticastControllerImpl extends AbstractCollectiveInterfaceContro
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ControllerState getState() {
 
         return new ControllerState(new MulticastItfState((HashMap) clientSideProxies,
