@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.objectweb.fractal.api.Component;
@@ -58,6 +59,7 @@ import org.objectweb.proactive.core.component.componentcontroller.AbstractPAComp
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 import org.objectweb.proactive.core.component.control.MethodStatistics;
 import org.objectweb.proactive.core.component.control.PAMulticastController;
+import org.objectweb.proactive.core.component.exceptions.NoSuchComponentException;
 import org.objectweb.proactive.core.component.representative.PAComponentRepresentative;
 import org.objectweb.proactive.core.runtime.ProActiveRuntimeImpl;
 import org.objectweb.proactive.core.util.log.Loggers;
@@ -96,6 +98,10 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	/** Monitoring status */
     private boolean started = false;
 	
+    /** Monitoring cache */
+    private Map<String, String> monitorsCache = new HashMap<String, String>();
+    
+    
     public MonitorControlImpl() {
     	super();
     }
@@ -159,7 +165,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 
 	@Override
 	public void startGCMMonitoring() {
-		if(started) return;
+		if(isGCMMonitoringStarted()) return;
 		started = true;
 		logger.debug("[Monitor Control] Start ... ");
 		String hostComponentName = null;
@@ -518,6 +524,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 				//System.out.println("   bindFc. Binding ["+cItf+"] to Multicast interface");
 				externalMonitorsMulticast.put(cItf, (MonitorControlMulticast) sItf);
 			}
+			
 			return;
 		}
 		// it refers to the monitoring interface of an internal component (external server interface bound to an internal server interface)
@@ -619,28 +626,38 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	}
 
 	@Override
-	public void addMetric(String name, Metric<?> metric, String compName) {
-		if(hostComponent.getComponentParameters().getName().equals(compName)){
+	/**
+	 * Component path structure:
+	 * 	"":						empty string for local add
+	 *  "comp1/comp2/comp3":	for remote add
+	 */
+	public void addMetric(String name, Metric<?> metric, String compPath) {
+		StringTokenizer token = new StringTokenizer(compPath.trim(), "/");
+		if(!token.hasMoreTokens()) {
 			addMetric(name, metric);
+			System.out.println(this.getMonitoredComponentName() + ": Adding metric " + name + " locally.");
 			return;
 		}
-		/* too slow...
-		for(MonitorControl internal : internalMonitors.values())
-			internal.addMetric(name, metric, compName);
-		for(MonitorControl external : externalMonitors.values())
-			external.addMetric(name, metric, compName);
-		for(MonitorControlMulticast externalMulticast : externalMonitorsMulticast.values())
-			externalMulticast.addMetric(name, metric, compName);
-		*/
-		MonitorControl child = findMonitorControl(compName);
-		if(child == null) { 
-			for(MonitorControl internal : internalMonitors.values()) {
-				internal.addMetric(name, metric, compName);
-			}
+		
+		String nextComp = token.nextToken();
+		String nextItf = monitorsCache.get(nextComp);
+		System.out.println(this.getMonitoredComponentName() + ": Adding metric " + name + " on " + compPath + " (" + nextComp + ")");
+		String nextPath = "";
+		while(token.hasMoreTokens()) {
+			nextPath.concat(token.nextToken() + "/");
+		}
+		
+		MonitorControl mc = externalMonitors.get(nextItf);
+		if(mc == null) mc = internalMonitors.get(nextItf);
+		if(mc != null) {
+			mc.addMetric(name, metric, nextPath);
 			return;
 		}
-		System.out.println("Component " + compName + " found! Metric " + name + " will be added.");
-		child.addMetric(name, metric);
+		
+		MonitorControlMulticast mcm = externalMonitorsMulticast.get(nextItf);
+		if(mcm != null) {
+			mcm.addMetric(name, metric, nextPath);
+		}
 	}
 
 	@Override
@@ -659,30 +676,72 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	}
 
 	@Override
-	public MetricValue getMetricValue(String name) {
-		MetricValue result = metricsStore.getValue(name);
-		if(result.isLocated()) {
-			return result;
-		} else {
-			System.out.println(">>> [" + hostComponent.getComponentParameters().getName() + "] metric " + name + " not found, looking around..");
-			for(MonitorControl mc : externalMonitors.values()) {
-				if(mc.isMonitoringStarted().getBooleanValue()) {
-					if((result = mc.getMetricValue(name)).isLocated())
-						return result;
-				}
-			}
-			for(MonitorControl mc : internalMonitors.values()) {
-				if(mc.isMonitoringStarted().getBooleanValue()) {
-					if((result = mc.getMetricValue(name)).isLocated())
-						return result;
-				}
-			}
-			
-			// TODO: support multicast
-		}
-		return new MetricValue(null, false);
+	public Object getMetricValue(String name) {
+		//return metricsStore.getValue(name).getValue();
+		return metricsStore.getValue(name);
 	}
 
 
+	/**
+	 * Busca la metrica siguiendo el path pasado como parametro, debe retornar:
+	 * 
+	 * - de encontrarse la metrica en este componente (path vacio): MetricValue con metrica y booleano true
+	 * - de existir el path pasado como parametro: getMetricValue() remoto
+	 * - cualquier otro caso (metrica no encontrada): MetricValue(null, false)
+	 */
+	@Override
+	public Object getMetricValue(String name, String compPath) {
+		System.out.println(this.getMonitoredComponentName() + " getting value of " + name + " ...");
+		StringTokenizer token = new StringTokenizer(compPath.trim(), "/");
+		if(!token.hasMoreTokens()) {
+			System.out.println(this.getMonitoredComponentName() + ": getting metric value locally.");
+			//return new MetricValue(getMetricValue(name), true);
+			return getMetricValue(name);
+		}
+		
+		String nextComp = token.nextToken();
+		String nextItf = monitorsCache.get(nextComp);
+		String nextPath = "";
+		while(token.hasMoreTokens()) {
+			nextPath.concat(token.nextToken() + "/");
+		}
+		System.out.println(this.getMonitoredComponentName() + ": getting metric value on " + nextItf + " (" + nextComp + ")");
+		MonitorControl mc = externalMonitors.get(nextItf);
+		if(mc == null) mc = internalMonitors.get(nextItf);
+		if(mc != null) {
+			System.out.println(this.getMonitoredComponentName() + ": metric founded");
+			return mc.getMetricValue(name, nextPath);
+		}
+		
+		// TODO: Soportar multicast
 
+		System.out.println(this.getMonitoredComponentName() + ": metric not founded");
+		//return new MetricValue(null, false);
+		return null;
+	}
+
+	/** Broadcast para completar el valor de los caches. Se asume que no
+	 * existen ciclos entre monitores.
+	 */
+	public void cacheSync() {
+		MonitorControl mc;
+		for(String itfName : externalMonitors.keySet()) {	
+			mc = externalMonitors.get(itfName);
+			System.out.println("From " + this.getMonitoredComponentName() + " caching " + itfName);
+			monitorsCache.put(mc.getMonitoredComponentName(), itfName);
+			mc.cacheSync();
+		}
+
+		for(String itfName : internalMonitors.keySet()) {
+			mc = internalMonitors.get(itfName);
+			System.out.println("From " + this.getMonitoredComponentName() + " caching " + itfName);
+			monitorsCache.put(mc.getMonitoredComponentName(), itfName);
+			mc.cacheSync();
+		}
+		
+		System.out.println("From " + this.getMonitoredComponentName() + " caching ok");
+		//for(String itfName : externalMonitorsMulticast.keySet()) {
+			//monitorsCache.put(mcm.getMonitoredComponentName(), itfName);
+		//}
+	}
 }

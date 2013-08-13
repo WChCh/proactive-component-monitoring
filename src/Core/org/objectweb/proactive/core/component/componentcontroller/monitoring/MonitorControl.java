@@ -36,6 +36,7 @@
  */
 package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,7 @@ import java.util.Set;
 import org.etsi.uri.gcm.api.control.MonitorController;
 import org.objectweb.proactive.core.ProActiveRuntimeException;
 import org.objectweb.proactive.core.component.control.MethodStatistics;
+import org.objectweb.proactive.core.component.exceptions.NoSuchComponentException;
 import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
 
 public interface MonitorControl  {
@@ -113,13 +115,14 @@ public interface MonitorControl  {
     String getMonitoredComponentName();
     
     void addMetric(String name, Metric<?> metric);
-    void addMetric(String name, Metric<?> metric, String compName);
+    void addMetric(String name, Metric<?> metric, String compPath);
     Object runMetric(String name);
     //Object runMetric(String name, Object[] params);
-    MetricValue getMetricValue(String name);
+    Object getMetricValue(String name);
+    Object getMetricValue(String name, String compPath);
     
     List<String> getMetricList();
 	
-	
+    public void cacheSync();
 	
 }

@@ -36,6 +36,7 @@
  */
 package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -123,13 +124,14 @@ public interface MonitorControlMulticast {
     List<String> getMonitoredComponentName();
     
     void addMetric(String name, Metric<?> metric);
-    void addMetric(String name, Metric<?> metric, String compName);
+    void addMetric(String name, Metric<?> metric, String compPath);
     List<Object> runMetric(String name);
     //List<Object> runMetric(String name, Object[] params);
-    List<MetricValue> getMetricValue(String name);
+    List<Object> getMetricValue(String name);
+    List<Object> getMetricValue(String name, String compPath);
     
     List<List<String>> getMetricList();
 	
-	
+    public void cacheSync();
 	
 }

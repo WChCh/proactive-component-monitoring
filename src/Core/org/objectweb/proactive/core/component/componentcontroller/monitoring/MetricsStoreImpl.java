@@ -112,13 +112,20 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 		}
 	}
 
+	/**
+	 * Debe retornar el MetricValue con el valor booleano indicando:
+	 * true: 	se encontró la metrica
+	 * false: 	~
+	 */
 	@Override
-	public MetricValue getValue(String name) {
+	public Object getValue(String name) {
 		Metric<?> metric = metrics.get(name);
 		if(metric != null) {
-			return new MetricValue(metric.getValue(), true);
+			//return new MetricValue(metric.getValue(), true);
+			return metric.getValue();
 		}
-		return new MetricValue(null, false);
+		//return new MetricValue(null, false);
+		return null;
 	}
 
 	@Override
@@ -182,7 +189,7 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	@Override
 	public void onEvent(RemmosEvent re) {
 		// check all the metrics stored. If the metric is subscribed for the event, recalculate it.
-		System.out.println("EVENT ON " + hostComponent.getComponentParameters().getControllerDescription().getName() + ": " + re.getType());
+		//System.out.println("EVENT ON " + hostComponent.getComponentParameters().getControllerDescription().getName() + ": " + re.getType());
 		for(Metric<?> metric : metrics.values()) {
 			if(metric.isSubscribedTo(re.getType())) {
 				metric.calculate();
