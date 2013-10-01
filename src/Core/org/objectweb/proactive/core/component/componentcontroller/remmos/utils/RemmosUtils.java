@@ -309,7 +309,7 @@ public class RemmosUtils {
 		}
 		List<String> metricSet = null;
 		try {
-			metricSet = ((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
+			metricSet = ((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList().getObject();
 		} catch (NoSuchInterfaceException e) {
 			e.printStackTrace();
 		}

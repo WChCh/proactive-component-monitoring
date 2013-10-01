@@ -47,6 +47,8 @@ import org.objectweb.proactive.core.component.type.annotations.multicast.ClassDi
 import org.objectweb.proactive.core.component.type.annotations.multicast.ParamDispatchMetadata;
 import org.objectweb.proactive.core.component.type.annotations.multicast.ParamDispatchMode;
 import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
+import org.objectweb.proactive.core.util.wrapper.GenericTypeWrapper;
+import org.objectweb.proactive.core.util.wrapper.StringWrapper;
 
 /**
  * Multicast version of MonitorControl interface.
@@ -64,7 +66,7 @@ public interface MonitorControlMulticast {
 	void startGCMMonitoring();
 	void stopGCMMonitoring();
 	void resetGCMMonitoring();
-	List<Boolean> isGCMMonitoringStarted();
+	List<BooleanWrapper> isGCMMonitoringStarted();
 	List<Map<String, Object>> getAllGCMStatistics();
 	//List<MethodStatistics> getGCMStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
 	
@@ -121,17 +123,15 @@ public interface MonitorControlMulticast {
     
     List<List<String>> getNotificationsReceived(); 
     
-    List<String> getMonitoredComponentName();
+    List<StringWrapper> getMonitoredComponentName();
     
     void addMetric(String name, Metric<?> metric);
     void addMetric(String name, Metric<?> metric, String compPath);
-    List<Object> runMetric(String name);
+    List<GenericTypeWrapper<?>> runMetric(String name);
     //List<Object> runMetric(String name, Object[] params);
-    List<Object> getMetricValue(String name);
-    List<Object> getMetricValue(String name, String compPath);
+    List<GenericTypeWrapper<?>> getMetricValue(String name);
+    List<GenericTypeWrapper<?>> getMetricValue(String name, String compPath);
     
-    List<List<String>> getMetricList();
-	
-    public void cacheSync();
-	
+    List<GenericTypeWrapper<List<String>>> getMetricList();
+
 }

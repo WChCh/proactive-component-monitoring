@@ -36,30 +36,30 @@
  */
 package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.etsi.uri.gcm.api.control.MonitorController;
 import org.objectweb.proactive.core.ProActiveRuntimeException;
 import org.objectweb.proactive.core.component.control.MethodStatistics;
 import org.objectweb.proactive.core.component.exceptions.NoSuchComponentException;
 import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
+import org.objectweb.proactive.core.util.wrapper.GenericTypeWrapper;
+import org.objectweb.proactive.core.util.wrapper.StringWrapper;
 
 public interface MonitorControl  {
 
-	//-------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------
 	// GCM Monitoring API
 	
 	void startGCMMonitoring();
 	void stopGCMMonitoring();
 	void resetGCMMonitoring();
-	Boolean isGCMMonitoringStarted();
+	BooleanWrapper isGCMMonitoringStarted();
 	Map<String, Object> getAllGCMStatistics();
 	//MethodStatistics getGCMStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
 	
-	//-------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------
 	// Adaptation for the GCM Monitoring API
 	
 	void startMonitoring();
@@ -70,7 +70,7 @@ public interface MonitorControl  {
 	public MethodStatistics getStatistics(String itfName, String methodName) throws ProActiveRuntimeException;
 	//public MethodStatistics getStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
 	
-    //--------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Extensions for the Monitoring Framework
     //
     
@@ -112,17 +112,43 @@ public interface MonitorControl  {
     
     List<String> getNotificationsReceived(); 
     
-    String getMonitoredComponentName();
+    StringWrapper getMonitoredComponentName();
     
+    /**
+     * Add a metric on this monitor.
+     * @param name		the name of the metric
+     * @param metric	the metric
+     */
     void addMetric(String name, Metric<?> metric);
-    void addMetric(String name, Metric<?> metric, String compPath);
-    Object runMetric(String name);
-    //Object runMetric(String name, Object[] params);
-    Object getMetricValue(String name);
-    Object getMetricValue(String name, String compPath);
     
-    List<String> getMetricList();
-	
-    public void cacheSync();
+    /**
+     * Add a metric on the monitor indicated by the path
+     * @param name		the name of the metric
+     * @param metric	the metric
+     * @param compPath	the path to the monitor
+     * @throws NoSuchComponentException 
+     */
+    void addMetric(String name, Metric<?> metric, String compPath);
+    
+    /**
+     * Return the metric value of the named metric
+     * @param name	the name of the metric
+     * @return		an object if the metric was founded, null otherwise
+     */
+    GenericTypeWrapper<?> getMetricValue(String name);
+    
+    /**
+     * Return the metric value of the named metric from the monitor indicated by the path
+     * @param name		the name of the metric
+     * @param compPath	the path to the monitor
+     * @return			an object if the metric was founded, null otherwise
+     * @throws NoSuchComponentException 
+     */
+    GenericTypeWrapper<?> getMetricValue(String name, String compPath);
+    
+    GenericTypeWrapper<?> runMetric(String name);
+    //Object runMetric(String name, Object[] params);
+    
+    GenericTypeWrapper<List<String>> getMetricList();
 	
 }
