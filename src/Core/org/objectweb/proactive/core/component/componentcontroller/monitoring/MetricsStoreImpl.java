@@ -51,12 +51,11 @@ import org.objectweb.proactive.core.component.componentcontroller.monitoring.eve
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 import org.objectweb.proactive.core.util.log.Loggers;
 import org.objectweb.proactive.core.util.log.ProActiveLogger;
-import org.objectweb.proactive.core.util.wrapper.GenericTypeWrapper;
-
 
 public class MetricsStoreImpl extends AbstractPAComponentController implements MetricsStore, RemmosEventListener, BindingController {
 
 	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("unused")
 	private static final Logger logger = ProActiveLogger.getLogger(Loggers.COMPONENTS_MONITORING);
 
 	/** bound components **/
@@ -79,19 +78,19 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	}
 
 	@Override
-	public GenericTypeWrapper<?> calculate(String name) {
+	public Object calculate(String name) {
 		Metric<?> metric = metrics.get(name);
 		if(metric != null)
-			return metric.calculateWrapped();
-		return new GenericTypeWrapper<Object>(null);
+			return metric.calculate();
+		return null;
 	}
 	
 	@Override
-	public GenericTypeWrapper<?> calculate(String name, Object[] params) {
+	public Object calculate(String name, Object[] params) {
 		Metric<?> metric = metrics.get(name);
 		if(metric != null)
-			return metric.calculateWrapped(params);
-		return new GenericTypeWrapper<Object>(null);
+			return metric.calculate(params);
+		return null;
 	}
 
 	@Override
@@ -111,10 +110,10 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	}
 
 	@Override
-	public GenericTypeWrapper<?> getValue(String name) {
+	public Object getValue(String name) {
 		Metric<?> metric = metrics.get(name);
 		if(metric != null) {
-			return metric.getValueWrapped();
+			return metric.getValue();
 		}
 		return null;
 	}
@@ -134,11 +133,11 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	}
 	
 	@Override
-	public GenericTypeWrapper<List<String>> getMetricList() {
+	public List<String> getMetricList() {
 		Set<String> keys = metrics.keySet();
 		List<String> res = new ArrayList<String>(keys.size());
 		res.addAll(keys);
-		return new GenericTypeWrapper<List<String>>(res);
+		return res;
 	}
 
 
@@ -178,10 +177,10 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	@Override
 	public void onEvent(RemmosEvent re) {
 		// check all the metrics stored. If the metric is subscribed for the event, recalculate it.
-		System.out.println("EVENT ON " + hostComponent.getComponentParameters().getControllerDescription().getName() + ": " + re.getType());
+		// System.out.println("EVENT ON " + hostComponent.getComponentParameters().getControllerDescription().getName() + ": " + re.getType());
 		for(Metric<?> metric : metrics.values()) {
 			if(metric.isSubscribedTo(re.getType())) {
-				metric.calculate(re);
+				metric.calculate(new Object[] {re});
 			}
 		}
 	}

@@ -128,7 +128,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	 * { return null; }
 	 */
 	@Override
-	public BooleanWrapper isMonitoringStarted() {
+	public Boolean isMonitoringStarted() {
 		return isGCMMonitoringStarted();
 	}
 
@@ -161,8 +161,8 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	 */
 
 	@Override
-	public BooleanWrapper isGCMMonitoringStarted() {
-		return new BooleanWrapper(started);
+	public Boolean isGCMMonitoringStarted() {
+		return started;
 	}
 
 	@Override
@@ -243,8 +243,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		for (String monitorItfName : internalMonitors.keySet()) {
 			rpLogger.debug("[" + localName + "] Looking internal interface ["
 					+ monitorItfName + "]");
-			if (internalMonitors.get(monitorItfName)
-					.getMonitoredComponentName().getStringValue().equals(destName)) {
+			if (internalMonitors.get(monitorItfName).getMonitoredComponentName().equals(destName)) {
 				child = internalMonitors.get(monitorItfName);
 			}
 		}
@@ -252,8 +251,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		for (String monitorItfName : externalMonitors.keySet()) {
 			rpLogger.debug("[" + localName + "] Looking external interface ["
 					+ monitorItfName + "]");
-			if (externalMonitors.get(monitorItfName)
-					.getMonitoredComponentName().getStringValue().equals(destName)) {
+			if (externalMonitors.get(monitorItfName).getMonitoredComponentName().equals(destName)) {
 				child = externalMonitors.get(monitorItfName);
 			}
 		}
@@ -265,7 +263,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 				+ "] getPathFor("
 				+ id
 				+ ") calling "
-				+ (child == null ? "NOBODY" : child.getMonitoredComponentName().getStringValue()));
+				+ (child == null ? "NOBODY" : child.getMonitoredComponentName()));
 
 		result = child.getPathForID(id, rootID, visited);
 
@@ -511,7 +509,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		// try the internal monitor controllers
 		for (String monitorItfName : internalMonitors.keySet()) {
 			rpLogger.debug("[" + hostComponentName + "]  Trying internal interface [" + monitorItfName + "]");
-			name = internalMonitors.get(monitorItfName).getMonitoredComponentName().getStringValue();
+			name = internalMonitors.get(monitorItfName).getMonitoredComponentName();
 			monitorsCache.put(name, internalMonitors.get(monitorItfName));
 			if (name.equals(destName)) {
 				rpLogger.debug("[" + hostComponentName + "]          Found!!");
@@ -521,7 +519,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		// try the external monitor controllers
 		for (String monitorItfName : externalMonitors.keySet()) {
 			rpLogger.debug("[" + hostComponentName + "]  Trying external interface [" + monitorItfName + "]");
-			name = externalMonitors.get(monitorItfName).getMonitoredComponentName().getStringValue();
+			name = externalMonitors.get(monitorItfName).getMonitoredComponentName();
 			monitorsCache.put(name, externalMonitors.get(monitorItfName));
 			if (name.equals(destName)) {
 				rpLogger.debug("[" + hostComponentName + "]          Found!!");
@@ -727,8 +725,8 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	}
 
 	@Override
-	public StringWrapper getMonitoredComponentName() {
-		return new StringWrapper(hostComponentName);
+	public String getMonitoredComponentName() {
+		return hostComponentName;
 	}
 
 	@Override
@@ -768,7 +766,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	}
 
 	@Override
-	public GenericTypeWrapper<?> runMetric(String name) {
+	public Object runMetric(String name) {
 		return metricsStore.calculate(name);
 	}
 
@@ -778,12 +776,12 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	 */
 
 	@Override
-	public GenericTypeWrapper<List<String>> getMetricList() {
+	public List<String> getMetricList() {
 		return metricsStore.getMetricList();
 	}
 
 	@Override
-	public GenericTypeWrapper<?> getMetricValue(String name) {
+	public Object getMetricValue(String name) {
 		// return metricsStore.getValue(name).getValue();
 		return metricsStore.getValue(name);
 	}
@@ -800,7 +798,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	 * @throws NoSuchComponentException
 	 */
 	@Override
-	public GenericTypeWrapper<?> getMetricValue(String name, String compPath) {
+	public Object getMetricValue(String name, String compPath) {
 		if ((compPath = compPath.trim()) == "") compPath = "/";
 		StringTokenizer token = new StringTokenizer(compPath, "/");
 		if (debug) System.out.println(hostComponentName + ": getMetricValue: getting value of " + name + "on " + compPath);

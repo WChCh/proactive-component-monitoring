@@ -26,5 +26,5 @@ public interface WorkerMulticast {
 	 * @return
 	 */
 	@MethodDispatchMetadata(mode = @ParamDispatchMetadata(mode = ParamDispatchMode.ROUND_ROBIN))
-	List<LongWrapper> solve(List<IntWrapper> boardSection);
+	List<LongWrapper> solve(List<IntWrapper> col1, List<IntWrapper> col2);
 }

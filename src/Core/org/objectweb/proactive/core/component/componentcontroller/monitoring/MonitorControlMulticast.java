@@ -36,7 +36,6 @@
  */
 package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,9 +45,6 @@ import org.objectweb.proactive.core.component.control.MethodStatistics;
 import org.objectweb.proactive.core.component.type.annotations.multicast.ClassDispatchMetadata;
 import org.objectweb.proactive.core.component.type.annotations.multicast.ParamDispatchMetadata;
 import org.objectweb.proactive.core.component.type.annotations.multicast.ParamDispatchMode;
-import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
-import org.objectweb.proactive.core.util.wrapper.GenericTypeWrapper;
-import org.objectweb.proactive.core.util.wrapper.StringWrapper;
 
 /**
  * Multicast version of MonitorControl interface.
@@ -66,7 +62,7 @@ public interface MonitorControlMulticast {
 	void startGCMMonitoring();
 	void stopGCMMonitoring();
 	void resetGCMMonitoring();
-	List<BooleanWrapper> isGCMMonitoringStarted();
+	List<Boolean> isGCMMonitoringStarted();
 	List<Map<String, Object>> getAllGCMStatistics();
 	//List<MethodStatistics> getGCMStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
 	
@@ -76,7 +72,7 @@ public interface MonitorControlMulticast {
 	void startMonitoring();
 	void stopMonitoring();
 	void resetMonitoring();
-	List<BooleanWrapper> isMonitoringStarted();
+	List<Boolean> isMonitoringStarted();
 	List<Map<String, MethodStatistics>> getAllStatistics();
 	List<MethodStatistics> getStatistics(String itfName, String methodName) throws ProActiveRuntimeException;
 	//List<MethodStatistics> getStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
@@ -123,15 +119,15 @@ public interface MonitorControlMulticast {
     
     List<List<String>> getNotificationsReceived(); 
     
-    List<StringWrapper> getMonitoredComponentName();
+    List<String> getMonitoredComponentName();
     
     void addMetric(String name, Metric<?> metric);
     void addMetric(String name, Metric<?> metric, String compPath);
-    List<GenericTypeWrapper<?>> runMetric(String name);
+    List<Object> runMetric(String name);
     //List<Object> runMetric(String name, Object[] params);
-    List<GenericTypeWrapper<?>> getMetricValue(String name);
-    List<GenericTypeWrapper<?>> getMetricValue(String name, String compPath);
+    List<Object> getMetricValue(String name);
+    List<Object> getMetricValue(String name, String compPath);
     
-    List<GenericTypeWrapper<List<String>>> getMetricList();
+    List<List<String>> getMetricList();
 
 }

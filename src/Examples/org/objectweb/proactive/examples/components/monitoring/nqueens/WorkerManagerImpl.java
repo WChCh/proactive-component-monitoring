@@ -24,15 +24,19 @@ public class WorkerManagerImpl implements WorkerManager, PABindingController {
 	 */
 	public List<LongWrapper> startCalculus(IntWrapper boardSize) {
 		
-		List<IntWrapper> boardSections = new ArrayList<IntWrapper>();
-		for(int i = 1; i <= boardSize.getIntValue(); i++)
-			boardSections.add(new IntWrapper(i));
-		
+		List<IntWrapper> cols1 = new ArrayList<IntWrapper>();
+		List<IntWrapper> cols2 = new ArrayList<IntWrapper>();
+		for(int i = 1; i <= boardSize.getIntValue(); i++) {
+			for(int j = 1; j <= boardSize.getIntValue(); j++) {
+				cols1.add(new IntWrapper(i));
+				cols2.add(new IntWrapper(j));
+			}
+		}
 		workers.setUp(boardSize);
 		List<LongWrapper> solutions = new ArrayList<LongWrapper>();
-		for(LongWrapper result : workers.solve(boardSections))
+		for(LongWrapper result : workers.solve(cols1, cols2)) {
 			solutions.add(result);
-		
+		}
 		return solutions;
 	}
 

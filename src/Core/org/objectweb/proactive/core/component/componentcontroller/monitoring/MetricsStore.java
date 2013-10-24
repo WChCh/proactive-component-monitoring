@@ -38,8 +38,6 @@ package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
 import java.util.List;
 
-import org.objectweb.proactive.core.util.wrapper.GenericTypeWrapper;
-
 /**
  * Interface for a component that stores and updates Metrics.
  * @author cruz
@@ -62,7 +60,7 @@ public interface MetricsStore {
 	 * @param name
 	 * @return
 	 */
-	GenericTypeWrapper<?> calculate(String name);
+	Object calculate(String name);
 	
 	/**
 	 * Updates the metric value using the arguments provided. Ignores the arguments stored in the metric.
@@ -70,12 +68,12 @@ public interface MetricsStore {
 	 * @param params
 	 * @return
 	 */
-	GenericTypeWrapper<?> calculate(String name, Object[] params);
+	Object calculate(String name, Object[] params);
 	
-	GenericTypeWrapper<?> getValue(String name);
+	Object getValue(String name);
 	
 	void setValue(String name, Object v);
 	
-	GenericTypeWrapper<List<String>> getMetricList();
+	List<String> getMetricList();
 	
 }

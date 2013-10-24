@@ -43,9 +43,6 @@ import java.util.Set;
 import org.objectweb.proactive.core.ProActiveRuntimeException;
 import org.objectweb.proactive.core.component.control.MethodStatistics;
 import org.objectweb.proactive.core.component.exceptions.NoSuchComponentException;
-import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
-import org.objectweb.proactive.core.util.wrapper.GenericTypeWrapper;
-import org.objectweb.proactive.core.util.wrapper.StringWrapper;
 
 public interface MonitorControl  {
 
@@ -55,7 +52,7 @@ public interface MonitorControl  {
 	void startGCMMonitoring();
 	void stopGCMMonitoring();
 	void resetGCMMonitoring();
-	BooleanWrapper isGCMMonitoringStarted();
+	Boolean isGCMMonitoringStarted();
 	Map<String, Object> getAllGCMStatistics();
 	//MethodStatistics getGCMStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
 	
@@ -65,7 +62,7 @@ public interface MonitorControl  {
 	void startMonitoring();
 	void stopMonitoring();
 	void resetMonitoring();
-	BooleanWrapper isMonitoringStarted();
+	Boolean isMonitoringStarted();
 	public Map<String, MethodStatistics> getAllStatistics();
 	public MethodStatistics getStatistics(String itfName, String methodName) throws ProActiveRuntimeException;
 	//public MethodStatistics getStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
@@ -112,7 +109,7 @@ public interface MonitorControl  {
     
     List<String> getNotificationsReceived(); 
     
-    StringWrapper getMonitoredComponentName();
+    String getMonitoredComponentName();
     
     /**
      * Add a metric on this monitor.
@@ -135,7 +132,7 @@ public interface MonitorControl  {
      * @param name	the name of the metric
      * @return		an object if the metric was founded, null otherwise
      */
-    GenericTypeWrapper<?> getMetricValue(String name);
+    Object getMetricValue(String name);
     
     /**
      * Return the metric value of the named metric from the monitor indicated by the path
@@ -144,11 +141,11 @@ public interface MonitorControl  {
      * @return			an object if the metric was founded, null otherwise
      * @throws NoSuchComponentException 
      */
-    GenericTypeWrapper<?> getMetricValue(String name, String compPath);
+    Object getMetricValue(String name, String compPath);
     
-    GenericTypeWrapper<?> runMetric(String name);
+    Object runMetric(String name);
     //Object runMetric(String name, Object[] params);
     
-    GenericTypeWrapper<List<String>> getMetricList();
+    List<String> getMetricList();
 	
 }

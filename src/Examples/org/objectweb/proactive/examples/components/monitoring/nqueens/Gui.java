@@ -14,14 +14,21 @@ import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
 import org.objectweb.proactive.core.component.Constants;
 import org.objectweb.proactive.examples.components.monitoring.nqueens.metrics.MemoryUsageMetric;
-import org.objectweb.proactive.examples.components.monitoring.nqueens.metrics.NumberOfWorkersMetric;
+import org.objectweb.proactive.examples.components.monitoring.nqueens.metrics.NumberOfTasksMetric;
 import org.objectweb.proactive.examples.components.monitoring.nqueens.metrics.RemainingWorkMetric;
+import org.objectweb.proactive.examples.components.monitoring.nqueens.metrics.WorkerTasksCounterMetric;
 
 public class Gui extends JFrame implements Runnable {
 
 	private static final long serialVersionUID = 1L;
 	
 	private JTextField interval, memInfo, numInfo, remInfo, status;
+	
+	// Para monitorear los workers
+	private JTextField[] workersInfo;
+	private int N; // numero de workers
+	
+	// Monitor control de entrada
 	private MonitorControl monitor;
 	private long DELAY = 2000;
 
@@ -30,7 +37,7 @@ public class Gui extends JFrame implements Runnable {
 	 * 
 	 * @param master
 	 */
-	public Gui(Component master) {
+	public Gui(Component master, int workers) {
 		
 		this.setTitle("NQueens Monitors GUI");
 		try {
@@ -40,21 +47,30 @@ public class Gui extends JFrame implements Runnable {
 			monitor = null;
 		}
 
-        JPanel panel = new JPanel(new GridLayout(5,2));
+        JPanel panel = new JPanel(new GridLayout(5 + workers, 2));
         panel.add(new JLabel("Monitoring interval (in millis)"));
         panel.add((interval = new JTextField("2000")));
         panel.add(new JLabel("Memory Usage"));
         panel.add((memInfo = new JTextField("")));
-        panel.add(new JLabel("Number of Workers"));
+        panel.add(new JLabel("Number of Tasks"));
         panel.add((numInfo = new JTextField("")));
-        panel.add(new JLabel("Remaining Work"));
+        panel.add(new JLabel("Finished tasks"));
         panel.add((remInfo = new JTextField("")));
+        
+		workersInfo = new JTextField[workers];
+		for(int i = 0; i < workers; i++) {
+			workersInfo[i] = new JTextField("0");
+			panel.add(new JLabel("Worker " + (i +1)));
+			panel.add(workersInfo[i]);
+		}
+        
         panel.add(new JLabel("Status"));
         panel.add((status = new JTextField("starting...")));
         getContentPane().add(panel);
-        
         interval.addActionListener(setInterval);
 
+        this.N = workers;
+        
 		this.pack();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
@@ -69,7 +85,6 @@ public class Gui extends JFrame implements Runnable {
 
 	@Override
 	public void run() {
-		long counter = 0;
 		int num = 0;
 	
 		/** Master memory usage **/
@@ -77,10 +92,16 @@ public class Gui extends JFrame implements Runnable {
 		monitor.addMetric("memUsage", new MemoryUsageMetric());
 		
 		status.setText("adding numOfWorkers metric on Solver...");
-		monitor.addMetric("numOfWorkers", new NumberOfWorkersMetric(), "/Solver/Adder/WorkerManager");
+		monitor.addMetric("numOfWorkers", new NumberOfTasksMetric(), "/Solver/Adder/WorkerManager");
 		
 		status.setText("adding remWork metric on WorkerManager...");
 		monitor.addMetric("remWork", new RemainingWorkMetric(), "/Solver/Adder");
+		
+		status.setText("adding metrics to Workers...");
+		for(int i = 0; i < N; i++) {
+			monitor.addMetric("counter", new WorkerTasksCounterMetric(), "/Solver/Adder/WorkerManager/Worker" + (i+1));
+			workersInfo[i].setText("0");
+		}
 		
 		while(true) {
 			try {
@@ -90,14 +111,21 @@ public class Gui extends JFrame implements Runnable {
 			}
 
 			status.setText("getting value of memUsage metric from Master...");
-			memInfo.setText(monitor.getMetricValue("memUsage").getObject().toString());
+			memInfo.setText(monitor.getMetricValue("memUsage").toString());
 			
-			status.setText("getting value of numbOfWorkers metric from Solver...");
-			num = (Integer) monitor.getMetricValue("numOfWorkers", "/Solver/Adder/WorkerManager").getObject();
-			numInfo.setText("" + num);
+			status.setText("getting value of numOfTasks metric from Solver...");
+			numInfo.setText("" + monitor.getMetricValue("numOfWorkers", "/Solver/Adder/WorkerManager").toString());
 			
 			status.setText("getting value of remWork metric from WorkerManager...");
-			remInfo.setText(monitor.getMetricValue("remWork", "/Solver/Adder").getObject().toString() + "/" + num);
+			remInfo.setText(monitor.getMetricValue("remWork", "/Solver/Adder").toString() + "/" + numInfo.getText());
+			
+			status.setText("getting value of metrics from Workers...");
+			for(int i = 0; i < N; i++) {
+				workersInfo[i].setText(monitor.getMetricValue("counter", "/Solver/Adder/WorkerManager/Worker" + (i+1)).toString());
+			}
+			
+			//if(Integer.parseInt(remInfo.getText()) >= N)
+			//	break;
 		}
 	}
 }

@@ -37,7 +37,6 @@
 package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,17 +46,12 @@ import java.util.regex.Pattern;
 
 import javax.management.Notification;
 import javax.management.NotificationListener;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 
 import org.apache.log4j.Logger;
 import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.BindingController;
 import org.objectweb.fractal.api.control.IllegalBindingException;
 import org.objectweb.fractal.api.control.IllegalLifeCycleException;
-import org.objectweb.fractal.util.Fractal;
-import org.objectweb.proactive.api.PAActiveObject;
 import org.objectweb.proactive.core.ProActiveRuntimeException;
 import org.objectweb.proactive.core.UniqueID;
 import org.objectweb.proactive.core.body.tags.tag.CMTag;
@@ -66,15 +60,11 @@ import org.objectweb.proactive.core.component.componentcontroller.monitoring.eve
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEventListener;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEventType;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
-import org.objectweb.proactive.core.jmx.ProActiveJMXConstants;
-import org.objectweb.proactive.core.jmx.client.ClientConnector;
 import org.objectweb.proactive.core.jmx.naming.FactoryName;
 import org.objectweb.proactive.core.jmx.notification.FutureNotificationData;
 import org.objectweb.proactive.core.jmx.notification.NotificationType;
 import org.objectweb.proactive.core.jmx.notification.RequestNotificationData;
 import org.objectweb.proactive.core.jmx.util.JMXNotificationManager;
-import org.objectweb.proactive.core.runtime.ProActiveRuntimeImpl;
-import org.objectweb.proactive.core.util.URIBuilder;
 import org.objectweb.proactive.core.util.log.Loggers;
 import org.objectweb.proactive.core.util.log.ProActiveLogger;
 
@@ -92,6 +82,8 @@ import org.objectweb.proactive.core.util.log.ProActiveLogger;
  *
  */
 public class EventListener extends AbstractPAComponentController implements NotificationListener, BindingController, EventControl {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = ProActiveLogger.getLogger(Loggers.COMPONENTS_MONITORING);
 
@@ -192,7 +184,7 @@ public class EventListener extends AbstractPAComponentController implements Noti
         }
 		// TODO Handling for VOID REQUEST SERVED
         else if (type.equals(NotificationType.voidRequestServed)) {
-            RequestNotificationData data = (RequestNotificationData) notification.getUserData();
+            // RequestNotificationData data = (RequestNotificationData) notification.getUserData();
 //            logger.debug("["+componentName+"][voidReqServ] From:" + data.getSource() +
 //            		" To:"+ data.getDestination() +
 //            		" Method:" + data.getMethodName() +

@@ -20,17 +20,30 @@ public class WorkerImpl implements Worker {
 		this.boardSize = boardSize.getIntValue();
 	}
 
-	/** 
-	 * finds the number of solutions by searching on the given
-	 * section of the board.
-	 * 
-	 * @param boardSection
+	/**
+	 * The first two queens positions are give as the positions in the first
+	 * and second column. For example:
+	 * 	  __1___2___3_
+	 *  1 |_Q_|___|___  
+	 *  2 |___|___|___
+	 *  2 |___|_Q_|___
+	 *  3 |   |   |
+	 *  
+	 *  The parameters must be col1 = 1, col2 = 3.
+	 *  
+	 * @param section
+	 * @param subsection
 	 * @return
 	 */
-	public LongWrapper solve(IntWrapper boardSection) {
-		int[] board = new int[boardSize + 1];
-		board[1] = boardSection.getIntValue();
-		return new LongWrapper(place(2, board));
+	public LongWrapper solve(IntWrapper col1, IntWrapper col2) {
+		int[] board = new int[boardSize + 1]; 	
+		for(int i = 0; i < board.length; i++) board[i] = 0;
+		board[1] = col1.getIntValue();
+		board[2] = col2.getIntValue();
+		if(safe(board[2], 2, board)) {
+			return new LongWrapper(place(3, board));
+		}
+		return new LongWrapper(0);
 	}
 
 	private long place(int column, int board[]) {

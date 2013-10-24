@@ -478,7 +478,7 @@ public class MonitorConsole {
 						System.out.println("Component "+name+" not found.");
 						continue;
 					}
-					List<String> metrics = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList().getObject();
+					List<String> metrics = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
 					for(String metricName : metrics) {
 						Object result = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricValue(metricName);
 						System.out.println(name+"."+metricName+" = "+ result + " ("+result.getClass()+")");
@@ -536,7 +536,7 @@ public class MonitorConsole {
 						System.out.println("Component "+name+" not found.");
 						continue;
 					}
-					List<String> metrics = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList().getObject();
+					List<String> metrics = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
 					for(String metricName : metrics) {
 						Object result = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).runMetric(metricName);
 						System.out.println(name+"."+metricName+" = "+ result + " ("+result.getClass()+")");

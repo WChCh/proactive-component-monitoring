@@ -19,6 +19,6 @@ public interface Worker {
 	 * @param boardSection
 	 * @return
 	 */
-	LongWrapper solve(IntWrapper boardSection);
+	LongWrapper solve(IntWrapper col1, IntWrapper col2);
 
 }

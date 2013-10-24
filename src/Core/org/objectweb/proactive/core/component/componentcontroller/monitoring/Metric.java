@@ -40,9 +40,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEvent;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEventType;
-import org.objectweb.proactive.core.util.wrapper.GenericTypeWrapper;
 
 /**
  * Parent class for all metrics, which produce a value of type T.
@@ -81,15 +79,6 @@ public abstract class Metric<T> implements Serializable {
 	}
 	
 	/**
-	 * Calculates the value of the metric using the stored parameters.
-	 * A remmos event is given. Used by MetricStore.
-	 * @param re
-	 */
-	public T calculate(RemmosEvent re) {
-		return calculate(args);
-	}
-	
-	/**
 	 * Calculates the value of the metric, using the parameters provided
 	 * @param params
 	 * @return
@@ -98,26 +87,12 @@ public abstract class Metric<T> implements Serializable {
 		return null;
 	}
 
-	// mibanez - test: vale la pena? deberia el usuario escoger al definir T?
-	public GenericTypeWrapper<T> calculateWrapped() {
-		return new GenericTypeWrapper<T>(calculate());
-	}
-
-	public GenericTypeWrapper<T> calculateWrapped(final Object[] params) {
-		return new GenericTypeWrapper<T>(calculate(params));
-	}
-	// --- 
-
 	/**
 	 * Returns the current value of the metric, without any recalculation
 	 * @return
 	 */
 	public T getValue() {
 		return value;
-	}
-	
-	public GenericTypeWrapper<T> getValueWrapped() {
-		return new GenericTypeWrapper<T>(getValue());
 	}
 
 	/**
