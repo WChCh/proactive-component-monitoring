@@ -30,7 +30,7 @@ public class Gui extends JFrame implements Runnable {
 	
 	// Monitor control de entrada
 	private MonitorControl monitor;
-	private long DELAY = 2000;
+	private long DELAY = 5000;
 
 	
 	/**
@@ -49,7 +49,7 @@ public class Gui extends JFrame implements Runnable {
 
         JPanel panel = new JPanel(new GridLayout(5 + workers, 2));
         panel.add(new JLabel("Monitoring interval (in millis)"));
-        panel.add((interval = new JTextField("2000")));
+        panel.add((interval = new JTextField("" + DELAY)));
         panel.add(new JLabel("Memory Usage"));
         panel.add((memInfo = new JTextField("")));
         panel.add(new JLabel("Number of Tasks"));
@@ -85,8 +85,6 @@ public class Gui extends JFrame implements Runnable {
 
 	@Override
 	public void run() {
-		int num = 0;
-	
 		/** Master memory usage **/
 		status.setText("adding memUsage metric on Master...");
 		monitor.addMetric("memUsage", new MemoryUsageMetric());
@@ -105,27 +103,31 @@ public class Gui extends JFrame implements Runnable {
 		
 		while(true) {
 			try {
+				Object mem = monitor.getMetricValue("memUsage"),
+						num = monitor.getMetricValue("numOfWorkers", "/Solver/Adder/WorkerManager"),
+						rem = monitor.getMetricValue("remWork", "/Solver/Adder");
+				
 				Thread.sleep(DELAY);
+				
+				status.setText("getting value of memUsage metric from Master...");
+				memInfo.setText(mem.toString());
+				
+				status.setText("getting value of numOfTasks metric from Solver...");
+				numInfo.setText(num.toString());
+				
+				status.setText("getting value of remWork metric from WorkerManager...");
+				remInfo.setText(rem.toString() + "/" + numInfo.getText());
+				
+				status.setText("getting value of metrics from Workers...");
+				for(int i = 0; i < N; i++) {
+					workersInfo[i].setText(monitor.getMetricValue("counter", "/Solver/Adder/WorkerManager/Worker" + (i+1)).toString());
+				}
+				
+				//if(Integer.parseInt(remInfo.getText()) >= N)
+				//	break;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-
-			status.setText("getting value of memUsage metric from Master...");
-			memInfo.setText(monitor.getMetricValue("memUsage").toString());
-			
-			status.setText("getting value of numOfTasks metric from Solver...");
-			numInfo.setText("" + monitor.getMetricValue("numOfWorkers", "/Solver/Adder/WorkerManager").toString());
-			
-			status.setText("getting value of remWork metric from WorkerManager...");
-			remInfo.setText(monitor.getMetricValue("remWork", "/Solver/Adder").toString() + "/" + numInfo.getText());
-			
-			status.setText("getting value of metrics from Workers...");
-			for(int i = 0; i < N; i++) {
-				workersInfo[i].setText(monitor.getMetricValue("counter", "/Solver/Adder/WorkerManager/Worker" + (i+1)).toString());
-			}
-			
-			//if(Integer.parseInt(remInfo.getText()) >= N)
-			//	break;
 		}
 	}
 }

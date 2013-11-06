@@ -64,9 +64,6 @@ import org.objectweb.proactive.core.component.representative.PAComponentRepresen
 import org.objectweb.proactive.core.runtime.ProActiveRuntimeImpl;
 import org.objectweb.proactive.core.util.log.Loggers;
 import org.objectweb.proactive.core.util.log.ProActiveLogger;
-import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
-import org.objectweb.proactive.core.util.wrapper.GenericTypeWrapper;
-import org.objectweb.proactive.core.util.wrapper.StringWrapper;
 
 /**
  * Monitor Controller component for the Monitoring Framework
@@ -94,8 +91,11 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	private Map<String, MonitorControl> internalMonitors = new HashMap<String, MonitorControl>();
 	private Map<String, MonitorControlMulticast> externalMonitorsMulticast = new HashMap<String, MonitorControlMulticast>();
 
-	private String basicItfs[] = { Remmos.EVENT_CONTROL_ITF,
-			Remmos.RECORD_STORE_ITF, Remmos.METRICS_STORE_ITF };
+	private String basicItfs[] = {
+		Remmos.EVENT_CONTROL_ITF,
+		Remmos.RECORD_STORE_ITF,
+		Remmos.METRICS_STORE_ITF
+	};
 
 	/** Monitoring status */
 	private boolean started = false;
@@ -105,6 +105,10 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	private Map<String, MonitorControl> monitorsCache = new HashMap<String, MonitorControl>();
 	private boolean debug = false;
 
+	
+	/**
+	 * Empty Builder
+	 */
 	public MonitorControlImpl() {
 		super();
 	}
@@ -127,6 +131,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	 * methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException
 	 * { return null; }
 	 */
+	
 	@Override
 	public Boolean isMonitoringStarted() {
 		return isGCMMonitoringStarted();
@@ -602,44 +607,35 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 			IllegalLifeCycleException {
 		if (cItf.equals(Remmos.EVENT_CONTROL_ITF)) {
 			eventControl = (EventControl) sItf;
-			return;
-		}
-		if (cItf.equals(Remmos.RECORD_STORE_ITF)) {
+		} else if (cItf.equals(Remmos.RECORD_STORE_ITF)) {
 			recordStore = (RecordStore) sItf;
-			return;
-		}
-		if (cItf.equals(Remmos.METRICS_STORE_ITF)) {
+		} else if (cItf.equals(Remmos.METRICS_STORE_ITF)) {
 			metricsStore = (MetricsStore) sItf;
-			return;
-		}
-		// it refers to the monitoring interface of an external component (bound
-		// from an external client interface)
-		if (cItf.endsWith("-external-" + Remmos.MONITOR_SERVICE_ITF)) {
-			// WARN: does not check if the corresponding external client
-			// interface exists in the host component
-			// The server interface maybe a Multicast. In that case, it must be
-			// cast appropriately.!!!
+		} else if (cItf.endsWith("-external-" + Remmos.MONITOR_SERVICE_ITF)) {
+			// it refers to the monitoring interface of an external component (bound
+			// from an external client interface)
 			if (sItf instanceof MonitorControl) {
+				// WARN: does not check if the corresponding external client
+				// interface exists in the host component
+				// The server interface maybe a Multicast. In that case, it must be
+				// cast appropriately.!!!
 				externalMonitors.put(cItf, (MonitorControl) sItf);
-			}
-			if (sItf instanceof MonitorControlMulticast) {
+			} else if (sItf instanceof MonitorControlMulticast) {
 				// System.out.println("   bindFc. Binding ["+cItf+"] to Multicast interface");
 				externalMonitorsMulticast.put(cItf,
 						(MonitorControlMulticast) sItf);
 			}
-
-			return;
-		}
-		// it refers to the monitoring interface of an internal component
-		// (external server interface bound to an internal server interface)
-		if (cItf.endsWith("-internal-" + Remmos.MONITOR_SERVICE_ITF)) {
+		} else if (cItf.endsWith("-internal-" + Remmos.MONITOR_SERVICE_ITF)) {
+			// it refers to the monitoring interface of an internal component
+			// (external server interface bound to an internal server interface)
+		
 			// WARN: does not check if the corresponding internal server
 			// interface exists in the host component
 			internalMonitors.put(cItf, (MonitorControl) sItf);
-			return;
+		} else {
+			throw new NoSuchInterfaceException("Interface [" + cItf
+					+ "] not found ... Type received: " + sItf.getClass().getName());
 		}
-		throw new NoSuchInterfaceException("Interface [" + cItf
-				+ "] not found ... Type received: " + sItf.getClass().getName());
 	}
 
 	@Override
@@ -658,7 +654,6 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		itfsList.addAll(internalMonitors.keySet());
 
 		return itfsList.toArray(new String[itfsList.size()]);
-
 	}
 
 	@Override
@@ -799,24 +794,37 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	 */
 	@Override
 	public Object getMetricValue(String name, String compPath) {
-		if ((compPath = compPath.trim()) == "") compPath = "/";
+		compPath = compPath.trim();
+		if (compPath.equals("")) {
+			compPath = "/";
+		}
 		StringTokenizer token = new StringTokenizer(compPath, "/");
-		if (debug) System.out.println(hostComponentName + ": getMetricValue: getting value of " + name + "on " + compPath);
-
-		if (!token.hasMoreTokens()) return getMetricValue(name);
-
+		// Si no hay mas tokens, entonces se busca la metrica
+		// en este componente.
+		if (!token.hasMoreTokens()) {
+			return getMetricValue(name);
+		}
 		String nextCompName = token.nextToken();
 		MonitorControl nextCompMon = monitorsCache.get(nextCompName);
-		if (nextCompMon == null)
+		// Si el componente buscado no esta en el cache puede haber sido que
+		// se agregó la metrica usando otro path, igualmente valido.
+		if (nextCompMon == null) {
+			System.out.println(hostComponentName + ": getMetricValue: " 
+					+ "trying to get \"" + nextCompName + "\" from finMonitorControl");
 			nextCompMon = findMonitorControl(nextCompName);
+		}
 		if (nextCompMon == null) {
 			(new NoSuchComponentException(nextCompName)).printStackTrace();
 			return null;
 		}
-		if (debug) System.out.println(hostComponentName + ": getMetricValue: " + nextCompName + " founded");
-
+		if (debug) {
+			System.out.println(hostComponentName + ": getMetricValue: "
+					+ nextCompName + " founded");
+		}
 		String nextPath = "";
-		while (token.hasMoreTokens()) nextPath += "/" + token.nextToken();
+		while (token.hasMoreTokens()) {
+			nextPath += "/" + token.nextToken();
+		}
 		return nextCompMon.getMetricValue(name, nextPath);
 	}
 

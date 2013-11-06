@@ -35,18 +35,17 @@ public class NQueensBuilder {
 	
 	private PAGCMTypeFactory patf;
 	private PAGenericFactory pagf;
-	private boolean monitorable = true, setup = false, built = false, initiated = false;
+	private boolean monitorable = true, built = false, initiated = false;
 	
 	private Component master = null, solver = null;
-	
-	
+
+
 	/**
-	 * Sets the default building configuration
+	 * Turns On/Off the monitors
 	 */
-	public void setUp() {
-		Component boot;
+	public NQueensBuilder(boolean monitorable) {
 		try {
-			boot = Utils.getBootstrapComponent();
+			Component boot = Utils.getBootstrapComponent();
 			patf = (PAGCMTypeFactory) Utils.getPAGCMTypeFactory(boot);
 	        pagf = (PAGenericFactory) Utils.getPAGenericFactory(boot);
 		} catch (InstantiationException e) {
@@ -54,24 +53,7 @@ public class NQueensBuilder {
 		} catch (NoSuchInterfaceException e) {
 			e.printStackTrace();
 		}
-        setup = true;
-	}
-	
-	/**
-	 * Sets user building configurations
-	 * @param patf
-	 * @param pagf
-	 */
-	public void setUp(PAGCMTypeFactory patf, PAGenericFactory pagf) {
-		this.patf = patf;
-		this.pagf = pagf;
-		setup = true;
-	}
-
-	/**
-	 * Turns On/Off the monitors
-	 */
-	public void setMonitorable(boolean monitorable) {
+		
 		this.monitorable = monitorable;
 	}
 
@@ -88,9 +70,6 @@ public class NQueensBuilder {
 	 * @throws IllegalContentException 
 	 */
 	public void build(int numberOfWorkers) throws Exception {
-
-		if(!setup) setUp();
-
 		master = createMaster();
 		solver = createSolver();
 		Component workerManager, adder, worker;
@@ -110,10 +89,11 @@ public class NQueensBuilder {
 			Utils.getPAContentController(solver).addFcSubComponent(worker);
 			Utils.getPABindingController(workerManager).bindFc("workers", worker.getFcInterface("worker"));
 		}
-		
+
 		built = true;
 	}
-	
+
+
 	public boolean init() {
 		if(built && !initiated) {
 			try {
@@ -133,7 +113,8 @@ public class NQueensBuilder {
 		}
 		return false;
 	}
-	
+
+
 	public boolean stop() {
 		if(built && initiated) {
 			try {
@@ -154,6 +135,7 @@ public class NQueensBuilder {
 		}
 		return false;
 	}
+
 
 	private Component createMaster() throws InstantiationException, IllegalContentException, IllegalLifeCycleException, NoSuchInterfaceException, IllegalBindingException {
 		PAGCMInterfaceType[] fItfType = new PAGCMInterfaceType[] {
