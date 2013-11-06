@@ -16,6 +16,8 @@ import org.objectweb.proactive.core.component.factory.PAGenericFactory;
 import org.objectweb.proactive.core.component.identity.PAComponent;
 import org.objectweb.proactive.core.component.type.PAGCMInterfaceType;
 import org.objectweb.proactive.core.component.type.PAGCMTypeFactory;
+import org.objectweb.proactive.core.node.Node;
+
 
 /**
  * A Class to build all the components needed for the NQueens Problems' example.
@@ -63,18 +65,13 @@ public class NQueensBuilder {
 	 * 
 	 * @param monitored
 	 * @return
-	 * @throws InstantiationException 
-	 * @throws IllegalLifeCycleException 
-	 * @throws IllegalBindingException 
-	 * @throws NoSuchInterfaceException 
-	 * @throws IllegalContentException 
 	 */
 	public void build(int numberOfWorkers) throws Exception {
-		master = createMaster();
-		solver = createSolver();
+		master = createMaster(null);
+		solver = createSolver(null);
 		Component workerManager, adder, worker;
-		workerManager = createWorkerManager();
-		adder = createAdder();
+		workerManager = createWorkerManager(null);
+		adder = createAdder(null);
 			
 		Utils.getPABindingController(master).bindFc("solver", solver.getFcInterface("solver"));
 		
@@ -85,7 +82,7 @@ public class NQueensBuilder {
 		Utils.getPABindingController(adder).bindFc("manager", workerManager.getFcInterface("manager"));
 		
 		for(int i = 1; i <= numberOfWorkers; i++) {
-			worker = createWorker(i);
+			worker = createWorker(i, null);
 			Utils.getPAContentController(solver).addFcSubComponent(worker);
 			Utils.getPABindingController(workerManager).bindFc("workers", worker.getFcInterface("worker"));
 		}
@@ -118,8 +115,6 @@ public class NQueensBuilder {
 	public boolean stop() {
 		if(built && initiated) {
 			try {
-				//Utils.getPAGCMLifeCycleController(master).stopFc();
-				//Utils.getPAGCMLifeCycleController(solver).stopFc();
 				Utils.getPAGCMLifeCycleController(master).stopFc();
 				if(monitorable) {
 					((MonitorControl) master.getFcInterface(Constants.MONITOR_CONTROLLER)).stopGCMMonitoring();
@@ -136,73 +131,139 @@ public class NQueensBuilder {
 		return false;
 	}
 
-
-	private Component createMaster() throws InstantiationException, IllegalContentException, IllegalLifeCycleException, NoSuchInterfaceException, IllegalBindingException {
+	/**
+	 * MASTER
+	 * @param node
+	 * @return
+	 */
+	private Component createMaster(Node node) throws InstantiationException,
+			IllegalContentException, IllegalLifeCycleException,
+			NoSuchInterfaceException, IllegalBindingException {
 		PAGCMInterfaceType[] fItfType = new PAGCMInterfaceType[] {
 			(PAGCMInterfaceType) patf.createGCMItfType("master", Master.class.getName(), SERVER, MANDATORY, SINGLETON),
 			(PAGCMInterfaceType) patf.createGCMItfType("solver", Solver.class.getName(), CLIENT, MANDATORY, SINGLETON),
 		};
-		Component prim = primTemp("MasterPrimitive", MasterImpl.class.getName(), fItfType, monitorable);
-		Component comp = compTemp("Master", fItfType, monitorable);
+		Component prim = primTemp("MasterPrimitive", MasterImpl.class.getName(), fItfType, node, monitorable);
+		Component comp = compTemp("Master", fItfType, node, monitorable);
 		Utils.getPAContentController(comp).addFcSubComponent(prim);
 		Utils.getPABindingController(comp).bindFc("master", prim.getFcInterface("master"));
 		Utils.getPABindingController(prim).bindFc("solver", comp.getFcInterface("solver"));
 		return comp;
 	}
 	
-	private Component createSolver() throws InstantiationException {
+	/**
+	 * SOLVER
+	 * @return
+	 */
+	private Component createSolver(Node node) throws InstantiationException {
 		PAGCMInterfaceType[] fItfType = new PAGCMInterfaceType[] {
 			(PAGCMInterfaceType) patf.createGCMItfType("solver", Solver.class.getName(), SERVER, MANDATORY, SINGLETON)
 		};
-		return compTemp("Solver", fItfType, monitorable);
+		return compTemp("Solver", fItfType, node, monitorable);
 	}
 	
-	private Component createAdder() throws InstantiationException, IllegalContentException, IllegalLifeCycleException, NoSuchInterfaceException, IllegalBindingException {
+	/**
+	 * ADDER
+	 * @param node
+	 * @return
+	 */
+	private Component createAdder(Node node) throws InstantiationException,
+			IllegalContentException, IllegalLifeCycleException,
+			NoSuchInterfaceException, IllegalBindingException {
 		PAGCMInterfaceType[] fItfType = new PAGCMInterfaceType[] {
 			(PAGCMInterfaceType) patf.createGCMItfType("solver", Solver.class.getName(), SERVER, MANDATORY, SINGLETON),
 			(PAGCMInterfaceType) patf.createGCMItfType("manager", WorkerManager.class.getName(), CLIENT, MANDATORY, SINGLETON),
 		};
-		Component prim = primTemp("AdderPrimitive", AdderImpl.class.getName(), fItfType, monitorable);
-		Component comp = compTemp("Adder", fItfType, monitorable);
+		Component prim = primTemp("AdderPrimitive", AdderImpl.class.getName(), fItfType, node, monitorable);
+		Component comp = compTemp("Adder", fItfType, node, monitorable);
 		Utils.getPAContentController(comp).addFcSubComponent(prim);
 		Utils.getPABindingController(comp).bindFc("solver", prim.getFcInterface("solver"));
 		Utils.getPABindingController(prim).bindFc("manager", comp.getFcInterface("manager"));
 		return comp;
 	}
 
-	private Component createWorkerManager() throws InstantiationException, IllegalContentException, IllegalLifeCycleException, NoSuchInterfaceException, IllegalBindingException {
+	/**
+	 * WORKMANAGER
+	 * @param node
+	 * @return
+	 */
+	private Component createWorkerManager(Node node) throws InstantiationException,
+			IllegalContentException, IllegalLifeCycleException,
+			NoSuchInterfaceException, IllegalBindingException {
+
 		PAGCMInterfaceType[] fItfType = new PAGCMInterfaceType[] {
 			(PAGCMInterfaceType) patf.createGCMItfType("manager", WorkerManager.class.getName(), SERVER, MANDATORY, SINGLETON),
 			(PAGCMInterfaceType) patf.createGCMItfType("workers", WorkerMulticast.class.getName(), CLIENT, MANDATORY, MULTICAST),
 		};
-		Component prim = primTemp("WorkerManager", WorkerManagerImpl.class.getName(), fItfType, monitorable);
+		Component prim = primTemp("WorkerManager", WorkerManagerImpl.class.getName(), fItfType, node, monitorable);
 		return prim;
 	}
 
-	private Component createWorker(int i) throws InstantiationException, NoSuchInterfaceException, IllegalBindingException, IllegalLifeCycleException, IllegalContentException {
+	/**
+	 * WORKER
+	 * @param i
+	 * @param node
+	 * @return
+	 */
+	private Component createWorker(int i, Node node) throws InstantiationException,
+			NoSuchInterfaceException, IllegalBindingException,
+			IllegalLifeCycleException, IllegalContentException {
+	
 		PAGCMInterfaceType[] fItfType = new PAGCMInterfaceType[] {
 			(PAGCMInterfaceType) patf.createGCMItfType("worker", Worker.class.getName(), SERVER, MANDATORY, SINGLETON)
 		};
-		Component prim = primTemp("WorkerPrimitive" + i, WorkerImpl.class.getName(), fItfType, monitorable);
-		Component comp = compTemp("Worker" + i, fItfType, monitorable);
+		Component prim = primTemp("WorkerPrimitive" + i, WorkerImpl.class.getName(), fItfType, node, monitorable);
+		Component comp = compTemp("Worker" + i, fItfType, node, monitorable);
 		Utils.getPAContentController(comp).addFcSubComponent(prim);
 		Utils.getPABindingController(comp).bindFc("worker", prim.getFcInterface("worker"));
 		return comp;
 	}
 
-	private Component compTemp(String name, PAGCMInterfaceType[] fItfType, boolean isMonitorable) throws InstantiationException {
-		PAGCMInterfaceType[] nfItfType = isMonitorable ?
-				Remmos.createMonitorableNFType(patf, fItfType, Constants.COMPOSITE)
-				: new PAGCMInterfaceType[] {};
+	/**
+	 * Template para componentes compuestos
+	 * 
+	 * @param name				Nombre del componente
+	 * @param fItfType			Arreglo de interfaces funcionales
+	 * @param node				Nodo para ser desplayado
+	 * @param isMonitorable		Si True, entonces se hara monitoreable
+	 * @return					Un componente compuesto
+	 */
+	private Component compTemp(String name, PAGCMInterfaceType[] fItfType,
+			Node node, boolean isMonitorable) throws InstantiationException {
+
+		PAGCMInterfaceType[] nfItfType;
+		if (isMonitorable) {
+			nfItfType = Remmos.createMonitorableNFType(patf, fItfType, Constants.COMPOSITE);
+		} else {
+			nfItfType = new PAGCMInterfaceType[] {};
+		}
 		Component comp = pagf.newFcInstance(
-				patf.createFcType(fItfType, nfItfType),
-				new ControllerDescription(name, Constants.COMPOSITE),
-				null);
-		if(isMonitorable) setMonitorable(comp);
+			patf.createFcType(fItfType, nfItfType),
+			new ControllerDescription(name, Constants.COMPOSITE),
+			null,
+			node
+		);
+		
+		if(isMonitorable) {
+			setMonitorable(comp);
+		}
 		return comp;
 	}
 	
-	private Component primTemp(String name, String content, PAGCMInterfaceType[] fItfType, boolean isMonitorable) throws InstantiationException {
+	/**
+	 * Template para componentes primitivos
+	 * 
+	 * @param name				Nombre del componente
+	 * @param content			Nombre de la clase que la implementa
+	 * @param fItfType			Arreglo de interfaces funcionales
+	 * @param node				Nodo para ser desplayado
+	 * @param isMonitorable		Si True, entonces se hara monitoreable
+	 * @return					Un componente Primitivo
+	 */
+	private Component primTemp(String name, String content,
+			PAGCMInterfaceType[] fItfType, Node node, boolean isMonitorable)
+					throws InstantiationException {
+	
 		PAGCMInterfaceType[] nfItfType;
 		if(isMonitorable) {
 			nfItfType = Remmos.createMonitorableNFType(patf, fItfType, Constants.PRIMITIVE);
@@ -210,10 +271,15 @@ public class NQueensBuilder {
 			nfItfType = new PAGCMInterfaceType[] {};
 		}
 		Component comp = pagf.newFcInstance(
-				patf.createFcType(fItfType, nfItfType),
-				new ControllerDescription(name, Constants.PRIMITIVE),
-				new ContentDescription(content));
-		if(isMonitorable) setMonitorable(comp);
+			patf.createFcType(fItfType, nfItfType),
+			new ControllerDescription(name, Constants.PRIMITIVE),
+			new ContentDescription(content),
+			node
+		);
+
+		if(isMonitorable) {
+			setMonitorable(comp);
+		}
 		return comp;
 	}
 
