@@ -37,14 +37,12 @@
 package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Interface for a component that stores and updates Metrics.
  * @author cruz
  *
  */
-
 public interface MetricsStore {
 
 	void init();

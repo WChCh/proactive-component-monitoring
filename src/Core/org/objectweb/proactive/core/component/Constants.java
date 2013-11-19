@@ -62,6 +62,7 @@ public interface Constants {
     public final static String INTERCEPTOR_CONTROLLER = "interceptor-controller";
     public final static String LIFECYCLE_CONTROLLER = "lifecycle-controller";
     public final static String MEMBRANE_CONTROLLER = "membrane-controller";
+    public final static String ANALYSIS_CONTROLLER = "analysis-controller";
     public final static String MIGRATION_CONTROLLER = "migration-controller";
     public final static String MONITOR_CONTROLLER = "monitor-controller";
     public final static String MULTICAST_CONTROLLER = "multicast-controller";

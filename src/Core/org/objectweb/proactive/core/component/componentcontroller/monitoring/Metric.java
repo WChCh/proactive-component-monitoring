@@ -50,6 +50,8 @@ import org.objectweb.proactive.core.component.componentcontroller.monitoring.eve
  */
 public abstract class Metric<T> implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	/** The record source */
 	protected RecordStore records = null;
 	
@@ -84,7 +86,7 @@ public abstract class Metric<T> implements Serializable {
 	public T calculate(final Object[] params) {
 		return null;
 	}
-	
+
 	/**
 	 * Returns the current value of the metric, without any recalculation
 	 * @return
@@ -92,7 +94,7 @@ public abstract class Metric<T> implements Serializable {
 	public T getValue() {
 		return value;
 	}
-	
+
 	/**
 	 * Sets arbitrarily the value of the metric
 	 * @param v

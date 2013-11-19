@@ -96,6 +96,8 @@ public interface Loggers {
 
     public static final String DSI = CORE + ".dsi";
 
+    public static final String AUTONOMIC_MANAGER = COMPONENTS + ".autonomic.manager";
+    
     // Security loggers
     public static final String SECURITY = CORE + ".security";
     public static final String SECURITY_NODE = SECURITY + ".node";

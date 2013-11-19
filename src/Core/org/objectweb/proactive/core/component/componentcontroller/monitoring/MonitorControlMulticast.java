@@ -36,7 +36,6 @@
  */
 package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +45,6 @@ import org.objectweb.proactive.core.component.control.MethodStatistics;
 import org.objectweb.proactive.core.component.type.annotations.multicast.ClassDispatchMetadata;
 import org.objectweb.proactive.core.component.type.annotations.multicast.ParamDispatchMetadata;
 import org.objectweb.proactive.core.component.type.annotations.multicast.ParamDispatchMode;
-import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
 
 /**
  * Multicast version of MonitorControl interface.
@@ -74,7 +72,7 @@ public interface MonitorControlMulticast {
 	void startMonitoring();
 	void stopMonitoring();
 	void resetMonitoring();
-	List<BooleanWrapper> isMonitoringStarted();
+	List<Boolean> isMonitoringStarted();
 	List<Map<String, MethodStatistics>> getAllStatistics();
 	List<MethodStatistics> getStatistics(String itfName, String methodName) throws ProActiveRuntimeException;
 	//List<MethodStatistics> getStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
@@ -131,7 +129,5 @@ public interface MonitorControlMulticast {
     List<Object> getMetricValue(String name, String compPath);
     
     List<List<String>> getMetricList();
-	
-    public void cacheSync();
-	
+
 }

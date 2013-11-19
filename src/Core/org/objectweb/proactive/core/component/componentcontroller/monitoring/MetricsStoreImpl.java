@@ -45,8 +45,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.BindingController;
-import org.objectweb.fractal.api.control.IllegalBindingException;
-import org.objectweb.fractal.api.control.IllegalLifeCycleException;
 import org.objectweb.proactive.core.component.componentcontroller.AbstractPAComponentController;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEvent;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEventListener;
@@ -56,14 +54,17 @@ import org.objectweb.proactive.core.util.log.ProActiveLogger;
 
 public class MetricsStoreImpl extends AbstractPAComponentController implements MetricsStore, RemmosEventListener, BindingController {
 
+	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("unused")
 	private static final Logger logger = ProActiveLogger.getLogger(Loggers.COMPONENTS_MONITORING);
+
+	/** bound components **/
+	private RecordStore records;
 	
 	/** Metrics stored in this component */
 	private Map<String, Metric<?>> metrics;
+	private String[] itfList = { Remmos.RECORD_STORE_ITF };
 	
-	private RecordStore records;
-	
-	private String[] itfList = {Remmos.RECORD_STORE_ITF};
 	
 	@Override
 	public void init() {
@@ -79,21 +80,17 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	@Override
 	public Object calculate(String name) {
 		Metric<?> metric = metrics.get(name);
-		Object result = null;
-		if(metric != null) {
-			result = metric.calculate();
-		}
-		return result;
+		if(metric != null)
+			return metric.calculate();
+		return null;
 	}
 	
 	@Override
 	public Object calculate(String name, Object[] params) {
 		Metric<?> metric = metrics.get(name);
-		Object result = null;
-		if(metric != null) {
-			result = metric.calculate(params);
-		}
-		return result;
+		if(metric != null)
+			return metric.calculate(params);
+		return null;
 	}
 
 	@Override
@@ -112,19 +109,12 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 		}
 	}
 
-	/**
-	 * Debe retornar el MetricValue con el valor booleano indicando:
-	 * true: 	se encontró la metrica
-	 * false: 	~
-	 */
 	@Override
 	public Object getValue(String name) {
 		Metric<?> metric = metrics.get(name);
 		if(metric != null) {
-			//return new MetricValue(metric.getValue(), true);
 			return metric.getValue();
 		}
-		//return new MetricValue(null, false);
 		return null;
 	}
 
@@ -134,6 +124,7 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setValue(String name, Object v) {
 		Metric metric = metrics.get(name);
 		if(metric != null) {
@@ -151,9 +142,7 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 
 
 	@Override
-	public void bindFc(String itfName, Object obj)
-			throws NoSuchInterfaceException, IllegalBindingException,
-			IllegalLifeCycleException {
+	public void bindFc(String itfName, Object obj) throws NoSuchInterfaceException {
 		if(itfName.equals(Remmos.RECORD_STORE_ITF)) {
 			records = (RecordStore) obj;
 		}
@@ -176,8 +165,7 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	}
 
 	@Override
-	public void unbindFc(String itfName) throws NoSuchInterfaceException,
-			IllegalBindingException, IllegalLifeCycleException {
+	public void unbindFc(String itfName) throws NoSuchInterfaceException {
 		if(itfName.equals(Remmos.RECORD_STORE_ITF)) {
 			records = null;
 		}
@@ -189,15 +177,12 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	@Override
 	public void onEvent(RemmosEvent re) {
 		// check all the metrics stored. If the metric is subscribed for the event, recalculate it.
-		//System.out.println("EVENT ON " + hostComponent.getComponentParameters().getControllerDescription().getName() + ": " + re.getType());
+		// System.out.println("EVENT ON " + hostComponent.getComponentParameters().getControllerDescription().getName() + ": " + re.getType());
 		for(Metric<?> metric : metrics.values()) {
 			if(metric.isSubscribedTo(re.getType())) {
-				metric.calculate();
+				metric.calculate(new Object[] {re});
 			}
 		}
-		
 	}
-
-
 
 }

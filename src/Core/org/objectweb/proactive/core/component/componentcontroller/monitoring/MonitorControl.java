@@ -36,20 +36,17 @@
  */
 package org.objectweb.proactive.core.component.componentcontroller.monitoring;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.etsi.uri.gcm.api.control.MonitorController;
 import org.objectweb.proactive.core.ProActiveRuntimeException;
 import org.objectweb.proactive.core.component.control.MethodStatistics;
 import org.objectweb.proactive.core.component.exceptions.NoSuchComponentException;
-import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
 
 public interface MonitorControl  {
 
-	//-------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------
 	// GCM Monitoring API
 	
 	void startGCMMonitoring();
@@ -59,18 +56,18 @@ public interface MonitorControl  {
 	Map<String, Object> getAllGCMStatistics();
 	//MethodStatistics getGCMStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
 	
-	//-------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------
 	// Adaptation for the GCM Monitoring API
 	
 	void startMonitoring();
 	void stopMonitoring();
 	void resetMonitoring();
-	BooleanWrapper isMonitoringStarted();
+	Boolean isMonitoringStarted();
 	public Map<String, MethodStatistics> getAllStatistics();
 	public MethodStatistics getStatistics(String itfName, String methodName) throws ProActiveRuntimeException;
 	//public MethodStatistics getStatistics(String itfName, String methodName, Class<?>[] parametersTypes) throws ProActiveRuntimeException;
 	
-    //--------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Extensions for the Monitoring Framework
     //
     
@@ -114,15 +111,41 @@ public interface MonitorControl  {
     
     String getMonitoredComponentName();
     
+    /**
+     * Add a metric on this monitor.
+     * @param name		the name of the metric
+     * @param metric	the metric
+     */
     void addMetric(String name, Metric<?> metric);
+    
+    /**
+     * Add a metric on the monitor indicated by the path
+     * @param name		the name of the metric
+     * @param metric	the metric
+     * @param compPath	the path to the monitor
+     * @throws NoSuchComponentException 
+     */
     void addMetric(String name, Metric<?> metric, String compPath);
-    Object runMetric(String name);
-    //Object runMetric(String name, Object[] params);
+    
+    /**
+     * Return the metric value of the named metric
+     * @param name	the name of the metric
+     * @return		an object if the metric was founded, null otherwise
+     */
     Object getMetricValue(String name);
+    
+    /**
+     * Return the metric value of the named metric from the monitor indicated by the path
+     * @param name		the name of the metric
+     * @param compPath	the path to the monitor
+     * @return			an object if the metric was founded, null otherwise
+     * @throws NoSuchComponentException 
+     */
     Object getMetricValue(String name, String compPath);
     
+    Object runMetric(String name);
+    //Object runMetric(String name, Object[] params);
+    
     List<String> getMetricList();
-	
-    public void cacheSync();
 	
 }
