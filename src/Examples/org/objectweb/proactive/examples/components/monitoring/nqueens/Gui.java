@@ -107,6 +107,7 @@ public class Gui extends JFrame implements Runnable {
 						num = monitor.getMetricValue("numOfWorkers", "/Solver/Adder/WorkerManager"),
 						rem = monitor.getMetricValue("remWork", "/Solver/Adder");
 				
+				status.setText("sleeping...");
 				Thread.sleep(DELAY);
 				
 				status.setText("getting value of memUsage metric from Master...");

@@ -57,6 +57,9 @@ import org.objectweb.proactive.core.component.ContentDescription;
 import org.objectweb.proactive.core.component.ControllerDescription;
 import org.objectweb.proactive.core.component.PAInterface;
 import org.objectweb.proactive.core.component.Utils;
+import org.objectweb.proactive.core.component.componentcontroller.analysis.AnalysisController;
+import org.objectweb.proactive.core.component.componentcontroller.analysis.AnalysisControllerImpl;
+import org.objectweb.proactive.core.component.componentcontroller.autonomic.AutonomicManager;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.EventControl;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.EventListener;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MetricsStore;
@@ -109,20 +112,21 @@ public class Remmos {
 
 	// Logger
 	private static final Logger logger = ProActiveLogger.getLogger(Loggers.REMMOS);
-	
+
 	// Monitor-related Components
 	public static final String EVENT_LISTENER_COMP = "event-listener-NF";
 	public static final String RECORD_STORE_COMP = "record-store-NF";
 	public static final String MONITOR_SERVICE_COMP = "monitor-service-NF";
 	public static final String METRICS_STORE_COMP = "metrics-store-NF";
-	
+	public static final String ANALYSIS_CONTROLLER_COMP = "analysis-controller-NF";
+
 	// SLA Management-related Components
 	public static final String SLA_SERVICE_COMP = "sla-service-NF";
 	public static final String SLO_STORE_COMP = "slo-store-NF";
-	
+
 	// Reconfiguration-related Components
 	public static final String RECONFIGURATION_SERVICE_COMP = "reconfiguration-component-NF";
-	
+
 	// Interfaces
 	public static final String EVENT_CONTROL_ITF = "event-control-nf";
 	public static final String RECORD_STORE_ITF = "record-store-nf";
@@ -133,7 +137,8 @@ public class Remmos {
 	public static final String SLO_STORE_ITF = "slo-store-nf";
 	public static final String SLA_SERVICE_ITF = "sla-service-nf";
 	public static final String ACTIONS_ITF = "actions-nf";
-	
+	public static final String ANALYSIS_CONTROLLER_ITF = "analysis-controller-nf";
+
 	/**
 	 * Creates the NF interfaces that will be used for the Monitoring and Management framework (implemented as components).
 	 * 
@@ -169,6 +174,10 @@ public class Remmos {
 			// TODO missing a "decision" interface
 			// reconfiguration interface
 			//typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.RECONFIGURATION_CONTROLLER, PAReconfigurationController.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
+			
+			// Analysis interface
+			typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.ANALYSIS_CONTROLLER, AnalysisController.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
+			
 			
 			// external client Monitoring interfaces
 			// add one client Monitoring interface for each client F interface
@@ -305,7 +314,7 @@ public class Remmos {
 		Component recordStore = createBasicRecordStore(patf, pagf, RecordStoreImpl.class.getName(), parentNode);
 		Component monitorService = createMonitorService(patf, pagf, MonitorControlImpl.class.getName(), component, parentNode);
 		Component metricsStore = createBasicMetricsStore(patf, pagf, MetricsStoreImpl.class.getName(), parentNode);
-
+		Component analysis = createBasicAnalysisController(patf, pagf, AnalysisControllerImpl.class.getName(), parentNode);
 		
 		// performs the NF assembly
 		logger.debug("Changing the membrane state in order to inserting monitoring components");
@@ -315,9 +324,13 @@ public class Remmos {
 		String membraneOldState = membrane.getMembraneState();
 		String componentOldState = lifeCycle.getFcState();
 		logger.debug("Stopping LifeCycle");
-		lifeCycle.stopFc();
+		if(!lifeCycle.getFcState().equals(PAGCMLifeCycleController.STOPPED)) {
+			lifeCycle.stopFc();
+		}
 		logger.debug("State. Membrane: "+ membraneOldState+ " - LifeCycle: "+ componentOldState);
-		membrane.stopMembrane();
+		if(!membrane.getMembraneState().equals(PAMembraneController.MEMBRANE_STOPPED)) {
+			membrane.stopMembrane();
+		}
 		
 		
 		
@@ -327,6 +340,7 @@ public class Remmos {
 		membrane.nfAddFcSubComponent(recordStore);
 		membrane.nfAddFcSubComponent(monitorService);
 		membrane.nfAddFcSubComponent(metricsStore);
+		membrane.nfAddFcSubComponent(analysis);
 		// bindings between NF components
 		membrane.nfBindFc(MONITOR_SERVICE_COMP+"."+EVENT_CONTROL_ITF, EVENT_LISTENER_COMP+"."+EVENT_CONTROL_ITF);
 		membrane.nfBindFc(MONITOR_SERVICE_COMP+"."+RECORD_STORE_ITF, RECORD_STORE_COMP+"."+RECORD_STORE_ITF);
@@ -334,8 +348,11 @@ public class Remmos {
 		membrane.nfBindFc(EVENT_LISTENER_COMP+"."+RECORD_STORE_ITF, RECORD_STORE_COMP+"."+RECORD_STORE_ITF);
 		membrane.nfBindFc(EVENT_LISTENER_COMP+"."+METRICS_NOTIF_ITF, METRICS_STORE_COMP+"."+METRICS_NOTIF_ITF);
 		membrane.nfBindFc(METRICS_STORE_COMP+"."+RECORD_STORE_ITF, RECORD_STORE_COMP+"."+RECORD_STORE_ITF);
+		membrane.nfBindFc(ANALYSIS_CONTROLLER_COMP + "." + MONITOR_SERVICE_ITF, MONITOR_SERVICE_COMP + "." +  MONITOR_SERVICE_ITF);
 		// binding between the NF Monitoring Interface of the host component, and the Monitor Component
 		membrane.nfBindFc(Constants.MONITOR_CONTROLLER, MONITOR_SERVICE_COMP+"."+MONITOR_SERVICE_ITF);
+		// NF Monitoring Itf and Analysis controller
+		membrane.nfBindFc(Constants.ANALYSIS_CONTROLLER, ANALYSIS_CONTROLLER_COMP+"."+ANALYSIS_CONTROLLER_ITF);
 		// bindings between the Monitor Component and the external client NF monitoring interfaces
 		// one binding from MONITOR_SERVICE_COMP for each client binding (maybe optional or mandatory)
 		// collective and multicast/gathercast interfaces not supported (yet)
@@ -390,7 +407,7 @@ public class Remmos {
 		
 		logger.debug("   Done for component ["+pac.getComponentParameters().getName()+"] !");
 	}
-	
+
 	/**
 	 * Builds the SLA monitoring components and put them in the membrane.
 	 * The Monitoring components must have been added before, otherwise this method will fail.
@@ -768,6 +785,41 @@ public class Remmos {
 		
 		return reconfiguration;
 	}
+
+	/**
+	 * Analysis Controller
+	 * @param patf
+	 * @param pagf
+	 * @param name
+	 * @param parentNode
+	 * @return
+	 */
+	private static Component createBasicAnalysisController(
+			PAGCMTypeFactory patf, PAGenericFactory pagf, String analysisClass,
+			Node node) {
+
+		Component analysis = null;
+		InterfaceType[] analysisItfType = null;
+		ComponentType analysisType = null;
+		
+		try {
+			analysisItfType = new PAGCMInterfaceType[] {
+					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.ANALYSIS_CONTROLLER_ITF, AnalysisController.class.getName(), TypeFactory.SERVER, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
+					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.MONITOR_SERVICE_ITF,	MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
+			};
+			analysisType = patf.createFcType(analysisItfType);
+			analysis = pagf.newNfFcInstance(analysisType, 
+					new ControllerDescription(Remmos.ANALYSIS_CONTROLLER_COMP, Constants.PRIMITIVE, "/org/objectweb/proactive/core/component/componentcontroller/config/default-component-controller-config-basic.xml"), 
+					new ContentDescription(analysisClass),
+					node
+			);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		}
+
+		return analysis;
+	}
+
 	
 	/**
 	 * Starts monitoring in this component and all its connections.

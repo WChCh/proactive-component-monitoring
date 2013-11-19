@@ -33,11 +33,12 @@ public class WorkerManagerImpl implements WorkerManager, PABindingController {
 			}
 		}
 		workers.setUp(boardSize);
-		List<LongWrapper> solutions = new ArrayList<LongWrapper>();
-		for(LongWrapper result : workers.solve(cols1, cols2)) {
-			solutions.add(result);
-		}
-		return solutions;
+		//List<LongWrapper> solutions = new ArrayList<LongWrapper>();
+		//for(LongWrapper result : workers.solve(cols1, cols2)) {
+		//	solutions.add(result);
+		//}
+		//return solutions;
+		return workers.solve(cols1, cols2);
 	}
 
 

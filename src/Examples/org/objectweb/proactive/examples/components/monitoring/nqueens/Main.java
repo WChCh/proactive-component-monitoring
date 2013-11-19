@@ -6,9 +6,9 @@ import org.objectweb.proactive.core.util.wrapper.LongWrapper;
 
 public class Main {
 
-	static int WORKERS = 5;
+	static int WORKERS = 2;
 	static int BOARD_SIZE = 16;
-	static boolean MONITORABLE = false;
+	static boolean MONITORABLE = true;
 
 	public static void main(String[] args) {
 		NQueensBuilder nqueens = new NQueensBuilder(MONITORABLE);

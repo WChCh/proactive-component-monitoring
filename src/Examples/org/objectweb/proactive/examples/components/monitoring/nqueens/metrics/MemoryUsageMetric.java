@@ -1,8 +1,7 @@
 package org.objectweb.proactive.examples.components.monitoring.nqueens.metrics;
 
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.Metric;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEvent;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEventType;
+
 
 /**
  * Metric de uso de momeria
