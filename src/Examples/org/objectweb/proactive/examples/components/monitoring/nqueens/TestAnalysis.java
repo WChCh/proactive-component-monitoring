@@ -12,7 +12,6 @@ import org.objectweb.proactive.core.component.ControllerDescription;
 import org.objectweb.proactive.core.component.Utils;
 import org.objectweb.proactive.core.component.componentcontroller.analysis.AnalysisController;
 import org.objectweb.proactive.core.component.componentcontroller.analysis.Rule;
-import org.objectweb.proactive.core.component.componentcontroller.autonomic.AutonomicManager;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 import org.objectweb.proactive.core.component.factory.PAGenericFactory;
@@ -43,7 +42,7 @@ public class TestAnalysis {
 	boolean monitorable;
 
 	static int WORKERS = 4;
-	static int BOARD_SIZE = 16;
+	static int BOARD_SIZE = 14;
 	static boolean MONITORABLE = true;
 
 	TestAnalysis(boolean mon) throws NoSuchInterfaceException, InstantiationException {

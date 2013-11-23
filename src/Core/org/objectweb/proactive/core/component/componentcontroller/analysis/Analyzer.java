@@ -14,7 +14,7 @@ public class Analyzer extends Thread implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private long delay = 1000;
+	private long delay = 5000;
 	private Map<String, Rule> rules;
 	private MonitorControl monitor;
 	String hostComponent;

@@ -177,7 +177,7 @@ public class MetricsStoreImpl extends AbstractPAComponentController implements M
 	@Override
 	public void onEvent(RemmosEvent re) {
 		// check all the metrics stored. If the metric is subscribed for the event, recalculate it.
-		// System.out.println("EVENT ON " + hostComponent.getComponentParameters().getControllerDescription().getName() + ": " + re.getType());
+		//System.out.println("EVENT ON " + hostComponent.getComponentParameters().getControllerDescription().getName() + ": " + re.getType());
 		for(Metric<?> metric : metrics.values()) {
 			if(metric.isSubscribedTo(re.getType())) {
 				metric.calculate(new Object[] {re});
