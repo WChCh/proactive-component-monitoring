@@ -59,7 +59,6 @@ import org.objectweb.proactive.core.component.PAInterface;
 import org.objectweb.proactive.core.component.Utils;
 import org.objectweb.proactive.core.component.componentcontroller.analysis.AnalysisController;
 import org.objectweb.proactive.core.component.componentcontroller.analysis.AnalysisControllerImpl;
-import org.objectweb.proactive.core.component.componentcontroller.autonomic.AutonomicManager;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.EventControl;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.EventListener;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MetricsStore;
@@ -1034,6 +1033,12 @@ public class Remmos {
 								externalMonitor = (MonitorControl)componentDest.getFcInterface(Constants.MONITOR_CONTROLLER);
 								logger.debug("   Binding ["+componentName+"."+itfName+"-external-"+Constants.MONITOR_CONTROLLER+"] to ["+ componentDestName+"."+Constants.MONITOR_CONTROLLER+"]");						
 							}
+							try {
+								// To break loops
+								if(membrane.nfLookupFc(itfName+"-external-"+Constants.MONITOR_CONTROLLER) != null) {
+									continue;
+								}
+							} catch(Exception e) { }
 							// do the NF binding
 							membrane.stopMembrane();
 							membrane.nfBindFc(itfName+"-external-"+Constants.MONITOR_CONTROLLER, externalMonitor);
