@@ -1,31 +1,32 @@
-package org.objectweb.proactive.examples.components.autonomic.matrixmultiplier;
+package org.objectweb.proactive.examples.components.mmultiplier;
 
 import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.BindingController;
 
-public class RepositoryImpl implements Repository, BindingController {
+public class ResultRepositoryImpl implements ResultRepository, BindingController {
 
 	private int[][] matrix;
-	private int tasks;
+	private int nOfTasks;
 
 	private ResultReceiver resultReceiver;
 
 	
 	@Override
-	public void configure(int n, int base) {
-		matrix = new int[n][n];
-		tasks = (matrix.length/base) * (matrix.length/base);
+	public void configure(int matrixSize, int nOfTasks) {
+		this.matrix = new int[matrixSize][matrixSize];
+		this.nOfTasks = nOfTasks;
 	}
 
 	@Override
-	public void store(int[][] subMatrix, int i, int j) {
-		for(int x = 0; x < subMatrix.length; x++) {
-			for(int y = 0; y < subMatrix.length; y++) {
-				matrix[i + x][j + y] = subMatrix[x][y];
+	public void store(MTask task, Matrix result) {
+		int[][] r = result.getMatrix();
+		for(int i = 0; i < r.length; i++) {
+			for(int j = 0; j < r.length; j++) {
+				matrix[i + task.getX()][j + task.getY()] = r[i][j];
 			}
 		}
-		tasks--;
-		if(tasks <= 0) {
+		nOfTasks--;
+		if(nOfTasks <= 0) {
 			/*for(int x = 0; x < matrix.length; x++) {
 				for(int y = 0; y < matrix.length; y++) {
 					System.out.print(matrix[x][y]+ "\t");
@@ -51,7 +52,7 @@ public class RepositoryImpl implements Repository, BindingController {
 
 	@Override
 	public String[] listFc() {
-		return new String[] { "result-reciver-itf", "repository-itf" };
+		return new String[] { "result-reciver-itf" };
 	}
 
 	@Override

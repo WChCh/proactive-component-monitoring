@@ -1,4 +1,7 @@
-package org.objectweb.proactive.examples.components.autonomic.matrixmultiplier.rules;
+package org.objectweb.proactive.examples.components.mmultiplier.rules;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.objectweb.proactive.core.component.componentcontroller.analysis.Rule;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
@@ -39,6 +42,11 @@ public class HalfFinishedWorkers implements Rule {
 	@Override
 	public String getLastReport() {
 		return report;
+	}
+
+	@Override
+	public List<String> getExecutionCommands() {
+		return new ArrayList<String>();
 	}
 
 }

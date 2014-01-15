@@ -149,7 +149,6 @@ public class EventListener extends AbstractPAComponentController implements Noti
 	@Override
 	public void handleNotification(Notification notification, Object handback) {
 		String type = notification.getType();
-		
 		// Handling for REQUEST RECEIVED
 		if (type.equals(NotificationType.requestReceived)) {
             RequestNotificationData data = (RequestNotificationData) notification.getUserData();
@@ -374,10 +373,10 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	
     	recordStore.insert(rs);
     	if(newRecord) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_INCOMING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_INCOMING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	if(rs.isFinished()) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.INCOMING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.INCOMING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     }
     
@@ -425,10 +424,10 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	
     	recordStore.insert(rs);
     	if(newRecord) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_INCOMING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_INCOMING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	if(rs.isFinished()) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.INCOMING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.INCOMING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     }
     
@@ -474,10 +473,10 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	
     	recordStore.insert(rs);
     	if(newRecord) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_INCOMING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_INCOMING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	if(rs.isFinished()) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.INCOMING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.INCOMING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	
     }
@@ -511,7 +510,7 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	ComponentRequestID root = new ComponentRequestID(Long.parseLong(cmTagFields[6]));
     	
     	OutgoingRequestRecord cs;
-    	boolean newRecord = true;
+    	boolean newRecord = false;
     	// checks if the call data has already been entered in the map
     	if(recordStore.exists(current, RecordType.OutgoingRequestRecord).getBooleanValue()) {
     		//cs = (CallRecord) logStore.fetch(current, RecordType.CallRecord);
@@ -526,10 +525,10 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	
     	recordStore.insert(cs);
     	if(newRecord) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_OUTGOING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_OUTGOING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	if(cs.isFinished()) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.OUTGOING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.OUTGOING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     }
     
@@ -578,10 +577,10 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	
     	recordStore.insert(cs);
     	if(newRecord) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_OUTGOING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_OUTGOING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	if(cs.isFinished()) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.OUTGOING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.OUTGOING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     }
     
@@ -627,10 +626,10 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	
     	recordStore.insert(cs);
     	if(newRecord) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_OUTGOING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_OUTGOING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	if(cs.isFinished()) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.OUTGOING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.OUTGOING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     }
     
@@ -677,10 +676,10 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	}
     	recordStore.insert(rs);
     	if(newRecord) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_INCOMING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_INCOMING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	if(rs.isFinished()) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.INCOMING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.INCOMING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     }
     
@@ -727,10 +726,10 @@ public class EventListener extends AbstractPAComponentController implements Noti
     	
     	recordStore.insert(cs);
     	if(newRecord) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_OUTGOING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.NEW_OUTGOING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     	if(cs.isFinished()) {
-    		notifyMetrics(new RemmosEvent(RemmosEventType.OUTGOING_REQUEST_EVENT, null));
+    		notifyMetrics(new RemmosEvent(RemmosEventType.OUTGOING_REQUEST_EVENT, notification.getTimeStamp()));
     	}
     }
     

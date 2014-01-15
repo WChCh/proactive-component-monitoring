@@ -1,5 +1,8 @@
 package org.objectweb.proactive.examples.components.monitoring.nqueens.rules;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.objectweb.proactive.core.component.componentcontroller.analysis.Rule;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
 
@@ -36,6 +39,11 @@ public class Finished implements Rule {
 	@Override
 	public String getLastReport() {
 		return report;
+	}
+
+	@Override
+	public List<String> getExecutionCommands() {
+		return new ArrayList<String>();
 	}
 
 }

@@ -39,6 +39,7 @@ package org.objectweb.proactive.core.component.componentcontroller.remmos;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
+import org.etsi.uri.gcm.util.GCM;
 import org.objectweb.fractal.api.Component;
 import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.BindingController;
@@ -172,7 +173,7 @@ public class Remmos {
 			typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.SLA_CONTROLLER, SLAService.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 			// TODO missing a "decision" interface
 			// reconfiguration interface
-			//typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.RECONFIGURATION_CONTROLLER, PAReconfigurationController.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
+			typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.RECONFIGURATION_CONTROLLER, PAReconfigurationController.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 			
 			// Analysis interface
 			typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.ANALYSIS_CONTROLLER, AnalysisController.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
@@ -352,6 +353,7 @@ public class Remmos {
 		membrane.nfBindFc(Constants.MONITOR_CONTROLLER, MONITOR_SERVICE_COMP+"."+MONITOR_SERVICE_ITF);
 		// NF Monitoring Itf and Analysis controller
 		membrane.nfBindFc(Constants.ANALYSIS_CONTROLLER, ANALYSIS_CONTROLLER_COMP+"."+ANALYSIS_CONTROLLER_ITF);
+		membrane.nfBindFc(ANALYSIS_CONTROLLER_COMP+"."+"loopback", ANALYSIS_CONTROLLER_COMP+"."+ANALYSIS_CONTROLLER_ITF);
 		// bindings between the Monitor Component and the external client NF monitoring interfaces
 		// one binding from MONITOR_SERVICE_COMP for each client binding (maybe optional or mandatory)
 		// collective and multicast/gathercast interfaces not supported (yet)
@@ -532,6 +534,21 @@ public class Remmos {
 		logger.debug("   Done for component ["+pac.getComponentParameters().getName()+"] !");
 	}
 	
+	
+	public static void bindAnalysisWithReconfiguration(Component component) throws Exception {
+
+		PAMembraneController membrane = Utils.getPAMembraneController(component);
+		PAGCMLifeCycleController lifeCycle = Utils.getPAGCMLifeCycleController(component);
+
+		//lifeCycle.stopFc();
+		membrane.stopMembrane();
+		
+		membrane.nfBindFc(ANALYSIS_CONTROLLER_COMP + "." + ACTIONS_ITF, RECONFIGURATION_SERVICE_COMP+"."+ACTIONS_ITF);
+		
+		membrane.startMembrane();
+		//lifeCycle.startFc();
+	}
+
 	/**
 	 * Creates the NF Event Listener component.
 	 * @param patf
@@ -804,8 +821,10 @@ public class Remmos {
 		try {
 			analysisItfType = new PAGCMInterfaceType[] {
 					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.ANALYSIS_CONTROLLER_ITF, AnalysisController.class.getName(), TypeFactory.SERVER, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
+					(PAGCMInterfaceType) patf.createGCMItfType("loopback", AnalysisController.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
 					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.MONITOR_SERVICE_ITF,	MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
-			};
+					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.ACTIONS_ITF, PAReconfigurationController.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY),
+				};
 			analysisType = patf.createFcType(analysisItfType);
 			analysis = pagf.newNfFcInstance(analysisType, 
 					new ControllerDescription(Remmos.ANALYSIS_CONTROLLER_COMP, Constants.PRIMITIVE, "/org/objectweb/proactive/core/component/componentcontroller/config/default-component-controller-config-basic.xml"), 

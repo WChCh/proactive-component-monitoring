@@ -664,8 +664,8 @@ public class MonitorConsole {
 						//String command = "unbind($this)";
 						String command = "$this/interface::*;"; 
 						System.out.println("Executing: "+ command);
-						Object r = parc.execute(command);
-						System.out.println("... done! ... result is an "+ r.getClass().getName());
+						//Object r = parc.execute(command);
+						//System.out.println("... done! ... result is an "+ r.getClass().getName());
 						
 					}
 					else {

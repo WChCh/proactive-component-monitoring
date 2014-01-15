@@ -197,7 +197,7 @@ public class TestAnalysis {
 			MonitorControl monControl = (MonitorControl) master.getFcInterface(Constants.MONITOR_CONTROLLER);
 			monControl.startMonitoring();
 			AnalysisController analysis = (AnalysisController) workerManager.getFcInterface(Constants.ANALYSIS_CONTROLLER);
-			analysis.start();
+			analysis.analyze();
 			
 			// METRICAS
 			MonitorControl monitor = (MonitorControl) master.getFcInterface(Constants.MONITOR_CONTROLLER);

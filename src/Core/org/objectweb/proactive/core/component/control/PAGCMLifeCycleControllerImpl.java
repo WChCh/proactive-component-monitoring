@@ -256,6 +256,7 @@ public class PAGCMLifeCycleControllerImpl extends AbstractPAController implement
             String hierarchical_type = owner.getComponentParameters().getHierarchicalType();
             if (hierarchical_type.equals(Constants.COMPOSITE)) {
                 // start all inner components
+            	/* ----->>> ludo's test
                 Component[] inner_components = GCM.getContentController(getFcItfOwner()).getFcSubComponents();
                 if (inner_components != null) {
                     for (int i = 0; i < inner_components.length; i++) {
@@ -271,6 +272,7 @@ public class PAGCMLifeCycleControllerImpl extends AbstractPAController implement
                         (GCM.getGCMLifeCycleController(inner_components[i])).startFc();
                     }
                 }
+                */
             } else {
                 // primitive component: check if the implementation class implements LifeCycleController
                 if (owner.getReferenceOnBaseObject() instanceof LifeCycleController) {
@@ -298,6 +300,7 @@ public class PAGCMLifeCycleControllerImpl extends AbstractPAController implement
             String hierarchical_type = owner.getComponentParameters().getHierarchicalType();
             if (hierarchical_type.equals(Constants.COMPOSITE)) {
                 // stop all inner components
+            	/* ----------<<< ludo's test
                 Component[] inner_components = GCM.getContentController(getFcItfOwner()).getFcSubComponents();
                 if (inner_components != null) {
                     for (int i = 0; i < inner_components.length; i++) {
@@ -313,6 +316,7 @@ public class PAGCMLifeCycleControllerImpl extends AbstractPAController implement
                         (GCM.getGCMLifeCycleController(inner_components[i])).stopFc();
                     }
                 }
+                */
             } else {
                 // primitive component: check if the implementation class implements LifeCycleController
                 if (owner.getReferenceOnBaseObject() instanceof LifeCycleController) {

@@ -1,6 +1,7 @@
 package org.objectweb.proactive.core.component.componentcontroller.analysis;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
 
@@ -21,5 +22,5 @@ public interface Rule extends Serializable {
 	 * @return
 	 */
 	public String getLastReport();
-
+	public List<String> getExecutionCommands();
 }

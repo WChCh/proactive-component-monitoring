@@ -8,8 +8,6 @@ public interface AnalysisController {
 	
 	public void removeRule(String name);
 
-	public void start();
-	
-	public void stop();
+	public void analyze();
 
 }

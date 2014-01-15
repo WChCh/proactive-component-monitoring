@@ -1,4 +1,4 @@
-package org.objectweb.proactive.examples.components.autonomic.matrixmultiplier;
+package org.objectweb.proactive.examples.components.mmultiplier;
 
 public interface Tester {
 
