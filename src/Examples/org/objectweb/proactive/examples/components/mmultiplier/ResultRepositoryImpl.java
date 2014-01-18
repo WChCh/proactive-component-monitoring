@@ -2,6 +2,7 @@ package org.objectweb.proactive.examples.components.mmultiplier;
 
 import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.BindingController;
+import org.objectweb.proactive.examples.components.mmultiplier.tasks.MTask;
 
 public class ResultRepositoryImpl implements ResultRepository, BindingController {
 
@@ -43,7 +44,7 @@ public class ResultRepositoryImpl implements ResultRepository, BindingController
 	@Override
 	public void bindFc(String name, Object itf)
 			throws NoSuchInterfaceException {
-		if(name.equals("result-reciver-itf")) {
+		if(name.equals(MMConstants.RESULT_RECEIVER_ITF)) {
 			resultReceiver = (ResultReceiver) itf;
 		} else {
 			throw new NoSuchInterfaceException(name);
@@ -52,12 +53,12 @@ public class ResultRepositoryImpl implements ResultRepository, BindingController
 
 	@Override
 	public String[] listFc() {
-		return new String[] { "result-reciver-itf" };
+		return new String[] { MMConstants.RESULT_RECEIVER_ITF };
 	}
 
 	@Override
 	public Object lookupFc(String name) throws NoSuchInterfaceException {
-		if(name.equals("result-reciver-itf")) {
+		if(name.equals(MMConstants.RESULT_RECEIVER_ITF)) {
 			return resultReceiver;
 		} else {
 			throw new NoSuchInterfaceException(name);
@@ -66,7 +67,7 @@ public class ResultRepositoryImpl implements ResultRepository, BindingController
 
 	@Override
 	public void unbindFc(String name) throws NoSuchInterfaceException {
-		if(name.equals("result-reciver-itf")) {
+		if(name.equals(MMConstants.RESULT_RECEIVER_ITF)) {
 			resultReceiver = null;
 		} else {
 			throw new NoSuchInterfaceException(name);

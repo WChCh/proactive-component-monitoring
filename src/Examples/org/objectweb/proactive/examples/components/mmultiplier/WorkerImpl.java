@@ -7,6 +7,7 @@ import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.BindingController;
 import org.objectweb.fractal.api.control.IllegalLifeCycleException;
 import org.objectweb.fractal.api.control.LifeCycleController;
+import org.objectweb.proactive.examples.components.mmultiplier.tasks.MTask;
 
 public class WorkerImpl implements Worker, BindingController,
 		LifeCycleController, WorkerAttributes {
@@ -55,11 +56,11 @@ public class WorkerImpl implements Worker, BindingController,
 
 	@Override
 	public void bindFc(String name, Object itf) throws NoSuchInterfaceException {
-		if (name.equals(ResultRepository.ITF_NAME)) {
+		if (name.equals(MMConstants.RESULT_REPOSITORY_ITF)) {
 			resultRepo = (ResultRepository) itf;
-		} else if (name.equals(TaskRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.TASK_REPOSITORY_ITF)) {
 			taskRepo = (TaskRepository) itf;
-		} else if (name.equals("loopback")) {
+		} else if (name.equals(MMConstants.LOOPBACK_ITF)) {
 			mySelf = (Worker) itf;
 		} else {
 			throw new NoSuchInterfaceException(name);
@@ -68,17 +69,17 @@ public class WorkerImpl implements Worker, BindingController,
 
 	@Override
 	public String[] listFc() {
-		return new String[] { ResultRepository.ITF_NAME,
-				TaskRepository.ITF_NAME, "loopback" };
+		return new String[] { MMConstants.RESULT_REPOSITORY_ITF,
+				MMConstants.TASK_REPOSITORY_ITF, MMConstants.LOOPBACK_ITF };
 	}
 
 	@Override
 	public Object lookupFc(String name) throws NoSuchInterfaceException {
-		if (name.equals(ResultRepository.ITF_NAME)) {
+		if (name.equals(MMConstants.RESULT_REPOSITORY_ITF)) {
 			return resultRepo;
-		} else if (name.equals(TaskRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.TASK_REPOSITORY_ITF)) {
 			return taskRepo;
-		} else if (name.equals("loopback")) {
+		} else if (name.equals(MMConstants.LOOPBACK_ITF)) {
 			return mySelf;
 		} else {
 			throw new NoSuchInterfaceException(name);
@@ -87,11 +88,11 @@ public class WorkerImpl implements Worker, BindingController,
 
 	@Override
 	public void unbindFc(String name) throws NoSuchInterfaceException {
-		if (name.equals(ResultRepository.ITF_NAME)) {
+		if (name.equals(MMConstants.RESULT_REPOSITORY_ITF)) {
 			resultRepo = null;
-		} else if (name.equals(TaskRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.TASK_REPOSITORY_ITF)) {
 			taskRepo = null;
-		} else if (name.equals("loopback")) {
+		} else if (name.equals(MMConstants.LOOPBACK_ITF)) {
 			mySelf = null;
 		} else {
 			throw new NoSuchInterfaceException(name);

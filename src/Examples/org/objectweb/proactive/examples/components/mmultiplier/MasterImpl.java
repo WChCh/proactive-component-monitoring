@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.BindingController;
+import org.objectweb.proactive.examples.components.mmultiplier.tasks.MMultiplyTask;
+import org.objectweb.proactive.examples.components.mmultiplier.tasks.MTask;
 
 /**
  * Generate the blocks multiplication tasks and configures the system for a new
@@ -43,11 +45,11 @@ public class MasterImpl implements MatrixMultiplier, BindingController {
 	 */
 	@Override
 	public void bindFc(String name, Object itf) throws NoSuchInterfaceException {
-		if (name.equals("worker-multicast-itf")) {
+		if (name.equals(MMConstants.WORKER_MULTICAST_ITF)) {
 			workers = (WorkerMulticast) itf;
-		} else if (name.equals(ResultRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.RESULT_REPOSITORY_ITF)) {
 			resultRepo = (ResultRepository) itf;
-		} else if (name.equals(TaskRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.TASK_REPOSITORY_ITF)) {
 			taskRepo = (TaskRepository) itf;
 		} else {
 			throw new NoSuchInterfaceException(name);
@@ -59,8 +61,8 @@ public class MasterImpl implements MatrixMultiplier, BindingController {
 	 */
 	@Override
 	public String[] listFc() {
-		return new String[] { "worker-multicast-itf",
-				ResultRepository.ITF_NAME, TaskRepository.ITF_NAME };
+		return new String[] { MMConstants.WORKER_MULTICAST_ITF,
+				MMConstants.RESULT_REPOSITORY_ITF, MMConstants.TASK_REPOSITORY_ITF };
 	}
 
 	/**
@@ -68,11 +70,11 @@ public class MasterImpl implements MatrixMultiplier, BindingController {
 	 */
 	@Override
 	public Object lookupFc(String name) throws NoSuchInterfaceException {
-		if (name.equals("worker-multicast-itf")) {
+		if (name.equals(MMConstants.WORKER_MULTICAST_ITF)) {
 			return workers;
-		} else if (name.equals(ResultRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.RESULT_REPOSITORY_ITF)) {
 			return resultRepo;
-		} else if (name.equals(TaskRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.TASK_REPOSITORY_ITF)) {
 			return taskRepo;
 		} else {
 			throw new NoSuchInterfaceException(name);
@@ -84,11 +86,11 @@ public class MasterImpl implements MatrixMultiplier, BindingController {
 	 */
 	@Override
 	public void unbindFc(String name) throws NoSuchInterfaceException {
-		if (name.equals("worker-multicast-itf")) {
+		if (name.equals(MMConstants.WORKER_MULTICAST_ITF)) {
 			workers = null;
-		} else if (name.equals(ResultRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.RESULT_REPOSITORY_ITF)) {
 			resultRepo = null;
-		} else if (name.equals(TaskRepository.ITF_NAME)) {
+		} else if (name.equals(MMConstants.TASK_REPOSITORY_ITF)) {
 			taskRepo = null;
 		} else {
 			throw new NoSuchInterfaceException(name);

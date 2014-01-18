@@ -5,6 +5,8 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
+import org.objectweb.proactive.examples.components.mmultiplier.tasks.MNullTask;
+import org.objectweb.proactive.examples.components.mmultiplier.tasks.MTask;
 
 public class TaskRepositoryImpl implements TaskRepository {
 

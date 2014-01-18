@@ -1,5 +1,7 @@
 package org.objectweb.proactive.examples.components.mmultiplier;
 
+import org.objectweb.proactive.examples.components.mmultiplier.tasks.MTask;
+
 public interface ResultRepository {
 
 	public final static String ITF_NAME = "result-repo-itf";

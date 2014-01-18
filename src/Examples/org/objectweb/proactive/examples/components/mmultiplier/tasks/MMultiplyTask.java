@@ -1,4 +1,6 @@
-package org.objectweb.proactive.examples.components.mmultiplier;
+package org.objectweb.proactive.examples.components.mmultiplier.tasks;
+
+import org.objectweb.proactive.examples.components.mmultiplier.Matrix;
 
 /**
  * Calculates the multiplication of a block
@@ -8,7 +10,7 @@ public class MMultiplyTask extends MTask {
 
 	private static final long serialVersionUID = 1L;
 
-	MMultiplyTask(int posX, int posY, int blockSize) {
+	public MMultiplyTask(int posX, int posY, int blockSize) {
 		super(posX, posY, blockSize);
 	}
 

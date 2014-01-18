@@ -38,13 +38,9 @@ package org.objectweb.proactive.core.component.componentcontroller.reconfigurati
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.HashSet;
 import java.util.Set;
 
-import org.etsi.uri.gcm.util.GCM;
 import org.objectweb.fractal.api.Component;
-import org.objectweb.fractal.api.NoSuchInterfaceException;
-import org.objectweb.fractal.api.control.NameController;
 import org.objectweb.fractal.fscript.FScript;
 import org.objectweb.fractal.fscript.FScriptEngine;
 import org.objectweb.fractal.fscript.InvalidScriptException;

@@ -1,6 +1,8 @@
-package org.objectweb.proactive.examples.components.mmultiplier;
+package org.objectweb.proactive.examples.components.mmultiplier.tasks;
 
 import java.io.Serializable;
+
+import org.objectweb.proactive.examples.components.mmultiplier.Matrix;
 
 /**
  * Tareas ejecutables por los workers.

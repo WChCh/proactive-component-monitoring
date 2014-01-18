@@ -3,7 +3,7 @@
 
 <definition name="org.objectweb.proactive.examples.components.mmultiplier.adl.Worker">
 	<interface role="server" name="worker-itf" signature="org.objectweb.proactive.examples.components.mmultiplier.Worker"/>
-	<interface role="client" name="loopback" signature="org.objectweb.proactive.examples.components.mmultiplier.Worker"/>
+	<interface role="client" name="loopback-itf" signature="org.objectweb.proactive.examples.components.mmultiplier.Worker"/>
 	<interface role="client" name="result-repo-itf" signature="org.objectweb.proactive.examples.components.mmultiplier.ResultRepository"/>
 	<interface role="client" name="task-repo-itf" signature="org.objectweb.proactive.examples.components.mmultiplier.TaskRepository"/>
 	

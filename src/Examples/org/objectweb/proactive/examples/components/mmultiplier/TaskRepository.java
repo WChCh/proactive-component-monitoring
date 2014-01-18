@@ -3,6 +3,7 @@ package org.objectweb.proactive.examples.components.mmultiplier;
 import java.util.List;
 
 import org.objectweb.proactive.core.util.wrapper.BooleanWrapper;
+import org.objectweb.proactive.examples.components.mmultiplier.tasks.MTask;
 
 /**
  * A tasks queue that represent the pending tasks to be executed by the
