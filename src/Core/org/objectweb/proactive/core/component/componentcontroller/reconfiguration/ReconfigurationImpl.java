@@ -47,15 +47,13 @@ import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.NameController;
 import org.objectweb.fractal.fscript.FScript;
 import org.objectweb.fractal.fscript.FScriptEngine;
-import org.objectweb.fractal.fscript.FScriptException;
 import org.objectweb.fractal.fscript.InvalidScriptException;
 import org.objectweb.fractal.fscript.ScriptLoader;
 import org.objectweb.proactive.core.component.componentcontroller.AbstractPAComponentController;
 import org.objectweb.proactive.core.component.identity.PAComponent;
-import org.objectweb.proactive.extra.component.fscript.PAGCMScript;
+import org.objectweb.proactive.extra.component.fscript.GCMScript;
 import org.objectweb.proactive.extra.component.fscript.control.PAReconfigurationController;
 import org.objectweb.proactive.extra.component.fscript.exceptions.ReconfigurationException;
-import org.objectweb.proactive.extra.component.fscript.model.GCMComponentNode;
 import org.objectweb.proactive.extra.component.fscript.model.GCMNodeFactory;
 
 /**
@@ -66,6 +64,7 @@ import org.objectweb.proactive.extra.component.fscript.model.GCMNodeFactory;
  *
  */
 
+@SuppressWarnings("serial")
 public class ReconfigurationImpl extends AbstractPAComponentController implements PAReconfigurationController {
 
     /** The {@link ScriptLoader} used by the controller. */
@@ -84,8 +83,8 @@ public class ReconfigurationImpl extends AbstractPAComponentController implement
      * @throws ReconfigurationException If an error occurred during the instantiation.
      */
 	public void setNewEngineFromADL() throws ReconfigurationException {
-		System.out.println("Initializing with "+ PAGCMScript.PAGCM_SCRIPT_ADL);
-		setNewEngineFromADL(PAGCMScript.PAGCM_SCRIPT_ADL);		
+		System.out.println("Initializing with "+ GCMScript.GCMSCRIPT_ADL);
+		setNewEngineFromADL(GCMScript.GCMSCRIPT_ADL);		
 	}
 
 	/**
@@ -107,7 +106,7 @@ public class ReconfigurationImpl extends AbstractPAComponentController implement
 				// No fractal.provider system property defined
 			}
 			System.setProperty("fractal.provider", "org.objectweb.fractal.julia.Julia");
-			Component fscript = PAGCMScript.newEngineFromAdl(adlFile);
+			Component fscript = GCMScript.newEngineFromAdl(adlFile);
 			loader = FScript.getScriptLoader(fscript);
 			engine = FScript.getFScriptEngine(fscript);
 			engine.setGlobalVariable("this", ((GCMNodeFactory) FScript.getNodeFactory(fscript))
@@ -165,43 +164,18 @@ public class ReconfigurationImpl extends AbstractPAComponentController implement
      *
      * @param source The code fragment to execute.
      * @return The value of the code fragment, if successfully executed.
-     * @throws ReconfigurationException If an error occurred during the execution of the code fragment.
      */
-    public Object execute(String source) throws ReconfigurationException {
-        checkInitialized();
+    public Object execute(String source) {
+        
         try {
+        	checkInitialized();
         	System.out.println("Executing source: "+ source);
-        	NameController nc = null;
-        	try {
-				nc = GCM.getNameController(hostComponent);
-			} catch (NoSuchInterfaceException e) {
-				e.printStackTrace();
-			}
-			System.out.println("Name controller found!");
-			String name = nc.getFcName();
-			System.out.println("Name is "+ name);
-        	
         	Object result = engine.execute(source);
-        	System.out.println("Result is of type: "+ result.getClass().getName());
-        	HashSet hs = new HashSet();
-        	System.out.println("Size: "+ hs.size());
-        	for(Object i : hs) {
-        		System.out.println("   ---> ("+ i.getClass().getName() + ") " + i);
-        	}
-        	Set<String> globals = getGlobals();
-        	System.out.println("Size: "+ globals.size());
-        	for(String s : globals) {
-        		System.out.println("   ---> "+ s );
-        	}
-        	//Object result2 = engine.execute("name($this);");
-        	//System.out.println("Result is of type: "+ result2.getClass().getName() + " and name is "+ result2 );
-        	result = engine.execute("$this/interface;");
-        	System.out.println("Result is of type: "+ result.getClass().getName());
-        	
         	return new String("PAGCMScript executed!");
-        } catch (FScriptException fse) {
-            throw new ReconfigurationException("Unable to execute the procedure", fse);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return new Object();
     }
 
 
