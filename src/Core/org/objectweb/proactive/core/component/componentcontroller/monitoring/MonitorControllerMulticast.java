@@ -55,7 +55,7 @@ import org.objectweb.proactive.core.component.type.annotations.multicast.ParamDi
  */
 
 @ClassDispatchMetadata(mode = @ParamDispatchMetadata(mode = ParamDispatchMode.BROADCAST))
-public interface MonitorControlMulticast {
+public interface MonitorControllerMulticast {
 
 	//-------------------------------------------------------------------------------------------
 	// Methods from the MonitorController interface, extended for use with Multicast
@@ -124,6 +124,7 @@ public interface MonitorControlMulticast {
     void addMetric(String name, Metric<?> metric);
     void addMetric(String name, Metric<?> metric, String compPath);
     List<Object> runMetric(String name);
+    List<Object> runMetric(String name, String compPath);
     //List<Object> runMetric(String name, Object[] params);
     List<Object> getMetricValue(String name);
     List<Object> getMetricValue(String name, String compPath);

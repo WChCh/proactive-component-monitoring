@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.objectweb.fractal.api.NoSuchInterfaceException;
 import org.objectweb.fractal.api.control.BindingController;
 import org.objectweb.proactive.core.component.componentcontroller.AbstractPAComponentController;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 import org.objectweb.proactive.extra.component.fscript.control.PAReconfigurationController;
 
@@ -16,16 +16,17 @@ public class AnalysisControllerImpl extends AbstractPAComponentController
 
 	private static final long serialVersionUID = 1L;
 
-	private MonitorControl monitor;
+	private MonitorController monitor;
 	private AnalysisController mySelf;
 	private PAReconfigurationController reconfiguration;
 	
+	private long delay;
 	private Map<String, Rule> rules = new ConcurrentHashMap<String, Rule>();
 
 
 	@Override
 	public void setDelay(long time) {
-		return;
+		delay = time;
 	}
 
 	@Override
@@ -52,7 +53,7 @@ public class AnalysisControllerImpl extends AbstractPAComponentController
 			}
 		}
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(delay);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -63,7 +64,7 @@ public class AnalysisControllerImpl extends AbstractPAComponentController
 	@Override
 	public void bindFc(String name, Object itf) throws NoSuchInterfaceException {
 		if (name.equals(Remmos.MONITOR_SERVICE_ITF)) {
-			monitor = (MonitorControl) itf;
+			monitor = (MonitorController) itf;
 		} else if (name.equals(Remmos.ACTIONS_ITF)) {
 			reconfiguration = (PAReconfigurationController) itf;
 		} else if (name.equals("loopback")) {

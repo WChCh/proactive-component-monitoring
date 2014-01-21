@@ -53,7 +53,7 @@ import org.objectweb.proactive.core.component.PAInterface;
 import org.objectweb.proactive.core.component.Utils;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.ComponentRequestID;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.Metric;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.RequestPath;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.metrics.MetricsLibrary;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
@@ -292,7 +292,7 @@ public class MonitorConsole {
 				if(!monitoring) {
 					System.out.println("Starting monitoring");
 					for(Component comp : managedComponents.values()) {
-						((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).startMonitoring();
+						((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).startMonitoring();
 					}
 					System.out.println("Monitoring Framework started.");
 					monitoring = true;
@@ -300,7 +300,7 @@ public class MonitorConsole {
 				else {
 					System.out.println("Stopping monitoring");
 					for(Component comp : managedComponents.values()) {
-						((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).stopMonitoring();
+						((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).stopMonitoring();
 					}
 					System.out.println("Monitoring Framework stopped.");
 					monitoring = false;
@@ -336,12 +336,12 @@ public class MonitorConsole {
 						System.out.println("Cmponent "+name+" not found.");
 						continue;
 					}
-					((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).resetMonitoring();
+					((MonitorController)found.getFcInterface(Constants.MONITOR_CONTROLLER)).resetMonitoring();
 					System.out.println("Logs cleared on "+ name);
 				}
 				else {
 					for(Component comp : managedComponents.values()) {
-						((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).resetMonitoring();
+						((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).resetMonitoring();
 					}
 				}
 				System.out.println("Logs cleared");
@@ -390,7 +390,7 @@ public class MonitorConsole {
 					String name = args.split("[ ]+", 2)[0];
 					long id = Long.parseLong(name);
 					System.out.println("Path from "+ currentRep.getComponentParameters().getName()+ ", for request "+ id);
-					RequestPath rp = ((MonitorControl)current.getFcInterface(Constants.MONITOR_CONTROLLER)).getPathForID(new ComponentRequestID(id));
+					RequestPath rp = ((MonitorController)current.getFcInterface(Constants.MONITOR_CONTROLLER)).getPathForID(new ComponentRequestID(id));
 					RemmosUtils.displayPath(rp);
 				}
 				else {
@@ -420,7 +420,7 @@ public class MonitorConsole {
 										args = null;
 									}
 									metric.setArgs(args);
-									((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).addMetric(metricName, metric);
+									((MonitorController)found.getFcInterface(Constants.MONITOR_CONTROLLER)).addMetric(metricName, metric);
 									System.out.println("Metric "+metricName+" (type: "+metricLibraryName+") added to "+ name +".");
 								}
 								else {
@@ -454,7 +454,7 @@ public class MonitorConsole {
 					if(found != null) {
 						if(input.length > 2) {
 							String metricName = input[2];
-							Object result = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricValue(metricName);
+							Object result = ((MonitorController)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricValue(metricName);
 							System.out.println(name+"."+metricName+" = "+ result + " ("+result.getClass()+")");
 						}
 						else {
@@ -478,9 +478,9 @@ public class MonitorConsole {
 						System.out.println("Component "+name+" not found.");
 						continue;
 					}
-					List<String> metrics = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
+					List<String> metrics = ((MonitorController)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
 					for(String metricName : metrics) {
-						Object result = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricValue(metricName);
+						Object result = ((MonitorController)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricValue(metricName);
 						System.out.println(name+"."+metricName+" = "+ result + " ("+result.getClass()+")");
 					}
 				}
@@ -511,7 +511,7 @@ public class MonitorConsole {
 							// no args supplied for the metric
 							else {
 								args = null;
-								Object result = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).runMetric(metricName);
+								Object result = ((MonitorController)found.getFcInterface(Constants.MONITOR_CONTROLLER)).runMetric(metricName);
 								System.out.println(name+"."+metricName+" = "+ result + " ("+result.getClass()+")");
 							}
 						}
@@ -536,9 +536,9 @@ public class MonitorConsole {
 						System.out.println("Component "+name+" not found.");
 						continue;
 					}
-					List<String> metrics = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
+					List<String> metrics = ((MonitorController)found.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
 					for(String metricName : metrics) {
-						Object result = ((MonitorControl)found.getFcInterface(Constants.MONITOR_CONTROLLER)).runMetric(metricName);
+						Object result = ((MonitorController)found.getFcInterface(Constants.MONITOR_CONTROLLER)).runMetric(metricName);
 						System.out.println(name+"."+metricName+" = "+ result + " ("+result.getClass()+")");
 					}
 				}
@@ -710,7 +710,7 @@ public class MonitorConsole {
 		if(monitoring) {
 			System.out.println("Stopping monitoring");
 			for(Component comp : managedComponents.values()) {
-				((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).stopMonitoring();
+				((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).stopMonitoring();
 			}
 			System.out.println("Monitoring Framework stopped.");
 		}

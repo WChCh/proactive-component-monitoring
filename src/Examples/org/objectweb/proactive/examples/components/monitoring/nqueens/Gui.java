@@ -11,7 +11,7 @@ import javax.swing.JTextField;
 
 import org.objectweb.fractal.api.Component;
 import org.objectweb.fractal.api.NoSuchInterfaceException;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.Constants;
 import org.objectweb.proactive.examples.components.monitoring.nqueens.metrics.MemoryUsageMetric;
 import org.objectweb.proactive.examples.components.monitoring.nqueens.metrics.NumberOfTasksMetric;
@@ -29,7 +29,7 @@ public class Gui extends JFrame implements Runnable {
 	private int N; // numero de workers
 	
 	// Monitor control de entrada
-	private MonitorControl monitor;
+	private MonitorController monitor;
 	private long DELAY = 5000;
 
 	
@@ -41,7 +41,7 @@ public class Gui extends JFrame implements Runnable {
 		
 		this.setTitle("NQueens Monitors GUI");
 		try {
-			monitor = (MonitorControl) master.getFcInterface(Constants.MONITOR_CONTROLLER);
+			monitor = (MonitorController) master.getFcInterface(Constants.MONITOR_CONTROLLER);
 		} catch (NoSuchInterfaceException e) {
 			e.printStackTrace();
 			monitor = null;

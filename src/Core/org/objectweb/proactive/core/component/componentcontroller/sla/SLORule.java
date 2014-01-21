@@ -39,7 +39,7 @@ package org.objectweb.proactive.core.component.componentcontroller.sla;
 import java.io.Serializable;
 
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.Metric;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 
 /**
  * This class represents a very simple rule.
@@ -67,7 +67,7 @@ public class SLORule<T> implements Serializable {
 
 	T preventiveThreshold;
 	
-	private MonitorControl monitor; 
+	private MonitorController monitor; 
 	
 	boolean enabled = true;
 	
@@ -98,7 +98,7 @@ public class SLORule<T> implements Serializable {
 		return metricName;
 	}
 	
-	public void setMonitor(MonitorControl ref) {
+	public void setMonitor(MonitorController ref) {
 		monitor = ref;
 	}
 	

@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.proactive.core.component.componentcontroller.analysis.Rule;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
+import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 
 public class TaskSolvingTimeThreshold implements Rule {
 
@@ -23,10 +24,11 @@ public class TaskSolvingTimeThreshold implements Rule {
 	}
 
 	@Override
-	public boolean isSatisfied(MonitorControl monitor) {
+	public boolean isSatisfied(MonitorController monitor) {
 		double avgTime = Double.parseDouble(monitor.getMetricValue(metricName, path).toString());
 		if(avgTime != 0 && avgTime/1000000 < threshold) {
 			report = "AVG TASK SOLVING TIME IS < " + threshold + " [secs] !";
+			monitor.runMetric("workers-change", "parent"+"-external-"+Remmos.MONITOR_SERVICE_ITF);
 			return false;
 		}
 		return true;

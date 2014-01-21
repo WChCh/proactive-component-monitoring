@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.proactive.core.component.componentcontroller.analysis.Rule;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 
 public class Finished implements Rule {
 
@@ -23,7 +23,7 @@ public class Finished implements Rule {
 	}
 	
 	@Override
-	public boolean isSatisfied(MonitorControl monitor) {
+	public boolean isSatisfied(MonitorController monitor) {
 		
 		for(int i = 0; i < WORKERS; i++) {
 			if(done[i]) continue;

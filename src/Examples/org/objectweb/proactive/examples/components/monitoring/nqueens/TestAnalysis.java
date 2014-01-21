@@ -12,7 +12,7 @@ import org.objectweb.proactive.core.component.ControllerDescription;
 import org.objectweb.proactive.core.component.Utils;
 import org.objectweb.proactive.core.component.componentcontroller.analysis.AnalysisController;
 import org.objectweb.proactive.core.component.componentcontroller.analysis.Rule;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 import org.objectweb.proactive.core.component.factory.PAGenericFactory;
 import org.objectweb.proactive.core.component.identity.PAComponent;
@@ -194,13 +194,13 @@ public class TestAnalysis {
 
 		if(MONITORABLE) {
 			Remmos.enableMonitoring(master);
-			MonitorControl monControl = (MonitorControl) master.getFcInterface(Constants.MONITOR_CONTROLLER);
+			MonitorController monControl = (MonitorController) master.getFcInterface(Constants.MONITOR_CONTROLLER);
 			monControl.startMonitoring();
 			AnalysisController analysis = (AnalysisController) workerManager.getFcInterface(Constants.ANALYSIS_CONTROLLER);
 			analysis.analyze();
 			
 			// METRICAS
-			MonitorControl monitor = (MonitorControl) master.getFcInterface(Constants.MONITOR_CONTROLLER);
+			MonitorController monitor = (MonitorController) master.getFcInterface(Constants.MONITOR_CONTROLLER);
 			for(int i = 0; i < WORKERS; i++) {
 				monitor.addMetric("counter", new WorkerTasksCounterMetric(), "/Solver/Adder/WorkerManager/Worker" + (i+1));
 			}

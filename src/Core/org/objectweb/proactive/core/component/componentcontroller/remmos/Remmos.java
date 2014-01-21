@@ -64,11 +64,11 @@ import org.objectweb.proactive.core.component.componentcontroller.monitoring.Eve
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.EventListener;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MetricsStore;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.MetricsStoreImpl;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControlMulticast;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControllerMulticast;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.RecordStore;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.RecordStoreImpl;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControlImpl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControllerImpl;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.event.RemmosEventListener;
 import org.objectweb.proactive.core.component.componentcontroller.reconfiguration.ReconfigurationImpl;
 import org.objectweb.proactive.core.component.componentcontroller.sla.MetricsListener;
@@ -168,7 +168,7 @@ public class Remmos {
 			typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.MULTICAST_CONTROLLER, PAMulticastController.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 			
 			// server Monitoring interface
-			typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.MONITOR_CONTROLLER, MonitorControl.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
+			typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.MONITOR_CONTROLLER, MonitorController.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 			// SLA management interface
 			typeList.add((PAGCMInterfaceType) pagcmTf.createGCMItfType(Constants.SLA_CONTROLLER, SLAService.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 			// TODO missing a "decision" interface
@@ -188,13 +188,13 @@ public class Remmos {
 				// add a client-singleton interface
 				if((itfType.isGCMSingletonItf() && !itfType.isGCMCollectiveItf()) || itfType.isGCMGathercastItf()) {
 					itfName = itfType.getFcItfName() + "-external-" + Constants.MONITOR_CONTROLLER;
-					pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY);
+					pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorController.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY);
 					typeList.add(pagcmItfType);
 				}
 				// add a multicast client interface
 				else if(itfType.isGCMMulticastItf()) {
 					itfName = itfType.getFcItfName() + "-external-" + Constants.MONITOR_CONTROLLER;
-					pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorControlMulticast.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.MULTICAST_CARDINALITY);
+					pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorControllerMulticast.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.MULTICAST_CARDINALITY);
 					typeList.add(pagcmItfType);
 				}
 				
@@ -208,13 +208,13 @@ public class Remmos {
 					// only server-singleton supported ... others ignored
 					if(!itfType.isFcClientItf() && itfType.isGCMSingletonItf() && !itfType.isGCMCollectiveItf()) {
 						itfName = itfType.getFcItfName() + "-internal-"+Constants.MONITOR_CONTROLLER;
-						pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY, PAGCMTypeFactory.INTERNAL);
+						pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorController.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY, PAGCMTypeFactory.INTERNAL);
 						typeList.add(pagcmItfType);
 					}
 				}
 				// one server internal Monitoring interface in each composite
 				itfName = "internal-server-"+Constants.MONITOR_CONTROLLER;
-				pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorControl.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY, PAGCMTypeFactory.INTERNAL);
+				pagcmItfType = (PAGCMInterfaceType) pagcmTf.createGCMItfType(itfName, MonitorController.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY, PAGCMTypeFactory.INTERNAL);
 				typeList.add(pagcmItfType);
 			}
 			
@@ -312,7 +312,7 @@ public class Remmos {
 		logger.debug("Creating NF monitoring components");
 		Component eventListener = createBasicEventListener(patf, pagf, EventListener.class.getName(), parentNode);
 		Component recordStore = createBasicRecordStore(patf, pagf, RecordStoreImpl.class.getName(), parentNode);
-		Component monitorService = createMonitorService(patf, pagf, MonitorControlImpl.class.getName(), component, parentNode);
+		Component monitorService = createMonitorService(patf, pagf, MonitorControllerImpl.class.getName(), component, parentNode);
 		Component metricsStore = createBasicMetricsStore(patf, pagf, MetricsStoreImpl.class.getName(), parentNode);
 		Component analysis = createBasicAnalysisController(patf, pagf, AnalysisControllerImpl.class.getName(), parentNode);
 		
@@ -662,11 +662,17 @@ public class Remmos {
 			monitorServiceItfTypeList.add(patf.createGCMItfType(EVENT_CONTROL_ITF, EventControl.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 			monitorServiceItfTypeList.add(patf.createGCMItfType(RECORD_STORE_ITF, RecordStore.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 			monitorServiceItfTypeList.add(patf.createGCMItfType(METRICS_STORE_ITF, MetricsStore.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));			
-			monitorServiceItfTypeList.add(patf.createGCMItfType(MONITOR_SERVICE_ITF, MonitorControl.class.getName(), TypeFactory.SERVER, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
+			monitorServiceItfTypeList.add(patf.createGCMItfType(MONITOR_SERVICE_ITF, MonitorController.class.getName(), TypeFactory.SERVER, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		}
-		 
+		
+		// matias: prueba para matrix_multiplier
+		try {
+			monitorServiceItfTypeList.add(patf.createGCMItfType("parent-external-" + MONITOR_SERVICE_ITF, MonitorController.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY));
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		}
 		// external client Monitoring interfaces
 		// add one client Monitoring interface for each client binding (maybe optional or mandatory)
 		// collective and multicast/gathercast interfaces not supported (yet)
@@ -678,7 +684,7 @@ public class Remmos {
 			if((((PAGCMInterfaceType)itfType).isGCMSingletonItf() && !((PAGCMInterfaceType)itfType).isGCMCollectiveItf()) || ((PAGCMInterfaceType)itfType).isGCMGathercastItf()) {
 				itfName = itfType.getFcItfName() + "-external-"+MONITOR_SERVICE_ITF;
 				try {
-					monitorServiceItfTypeList.add(patf.createGCMItfType(itfName, MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
+					monitorServiceItfTypeList.add(patf.createGCMItfType(itfName, MonitorController.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 				} catch (InstantiationException e) {
 					e.printStackTrace();
 				}
@@ -687,7 +693,7 @@ public class Remmos {
 				itfName = itfType.getFcItfName() + "-external-"+MONITOR_SERVICE_ITF;
 				logger.debug("   There is a MULTICAST client itf! The Monitor Component should have the MULTICAST client interface: "+ itfName);
 				try {
-					monitorServiceItfTypeList.add(patf.createGCMItfType(itfName, MonitorControlMulticast.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
+					monitorServiceItfTypeList.add(patf.createGCMItfType(itfName, MonitorControllerMulticast.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));
 				} catch (InstantiationException e) {
 					e.printStackTrace();
 				}
@@ -704,7 +710,7 @@ public class Remmos {
 				if(!itfType.isFcClientItf() && ((PAGCMInterfaceType)itfType).isGCMSingletonItf() && !((PAGCMInterfaceType)itfType).isGCMCollectiveItf()) {
 					itfName = itfType.getFcItfName() + "-internal-"+MONITOR_SERVICE_ITF;
 					try {
-						monitorServiceItfTypeList.add(patf.createGCMItfType(itfName, MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));					
+						monitorServiceItfTypeList.add(patf.createGCMItfType(itfName, MonitorController.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY));					
 					} catch (InstantiationException e) {
 						e.printStackTrace();
 					}
@@ -762,7 +768,7 @@ public class Remmos {
 			sloStoreItfType = new InterfaceType[] {
 					patf.createGCMItfType(SLO_STORE_ITF, SLOStore.class.getName(), TypeFactory.SERVER, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
 					patf.createGCMItfType(METRICS_NOTIF_ITF, MetricsListener.class.getName(), TypeFactory.SERVER, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY),
-					patf.createGCMItfType(MONITOR_SERVICE_ITF, MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
+					patf.createGCMItfType(MONITOR_SERVICE_ITF, MonitorController.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
 					patf.createGCMItfType(SLA_ALARM_ITF, SLANotifier.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY)
 			};
 			sloStoreType = patf.createFcType(sloStoreItfType);
@@ -822,7 +828,7 @@ public class Remmos {
 			analysisItfType = new PAGCMInterfaceType[] {
 					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.ANALYSIS_CONTROLLER_ITF, AnalysisController.class.getName(), TypeFactory.SERVER, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
 					(PAGCMInterfaceType) patf.createGCMItfType("loopback", AnalysisController.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
-					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.MONITOR_SERVICE_ITF,	MonitorControl.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
+					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.MONITOR_SERVICE_ITF,	MonitorController.class.getName(), TypeFactory.CLIENT, TypeFactory.MANDATORY, PAGCMTypeFactory.SINGLETON_CARDINALITY),
 					(PAGCMInterfaceType) patf.createGCMItfType(Remmos.ACTIONS_ITF, PAReconfigurationController.class.getName(), TypeFactory.CLIENT, TypeFactory.OPTIONAL, PAGCMTypeFactory.SINGLETON_CARDINALITY),
 				};
 			analysisType = patf.createFcType(analysisItfType);
@@ -869,8 +875,8 @@ public class Remmos {
 		PAMulticastController pamc = null;
 		PAComponent componentDest = null;
 		PAComponent parent = null;
-		MonitorControl externalMonitor = null;
-		MonitorControl internalMonitor = null;
+		MonitorController externalMonitor = null;
+		MonitorController internalMonitor = null;
 
 		logger.debug("Enabling monitoring on component "+componentName);
 		
@@ -925,7 +931,7 @@ public class Remmos {
 						componentDest = ((PAComponentRepresentative)((PAInterface) bc.lookupFc(itfName)).getFcItfOwner());
 						componentDestName = componentDest.getComponentParameters().getName();
 						logger.debug("   Server interface (internal): "+ itfName + ", bound to "+ componentDestName);
-						internalMonitor = ((MonitorControl)componentDest.getFcInterface(Constants.MONITOR_CONTROLLER));
+						internalMonitor = ((MonitorController)componentDest.getFcInterface(Constants.MONITOR_CONTROLLER));
 						logger.debug("   Binding ["+componentName+"."+itfName+"-internal-"+Constants.MONITOR_CONTROLLER+"] to ["+ componentDestName+"."+Constants.MONITOR_CONTROLLER+"]");
 						membrane.stopMembrane();
 						membrane.nfBindFc(itfName+"-internal-"+Constants.MONITOR_CONTROLLER, internalMonitor);
@@ -997,11 +1003,11 @@ public class Remmos {
 								// if it is bound to the parent ... is a weird case (though it may happen)
 								if(componentDest.equals(parent)) {
 									foundParent = true;
-									externalMonitor = (MonitorControl)componentDest.getFcInterface("internal-server-"+Constants.MONITOR_CONTROLLER);
+									externalMonitor = (MonitorController)componentDest.getFcInterface("internal-server-"+Constants.MONITOR_CONTROLLER);
 									logger.debug("   Binding ["+componentName+"."+itfName+"-external-"+Constants.MONITOR_CONTROLLER+"] to ["+ componentDestName+"."+"internal-server-"+Constants.MONITOR_CONTROLLER+"]");
 								}
 								else {
-									externalMonitor = (MonitorControl)componentDest.getFcInterface(Constants.MONITOR_CONTROLLER);
+									externalMonitor = (MonitorController)componentDest.getFcInterface(Constants.MONITOR_CONTROLLER);
 									logger.debug("   Binding ["+componentName+"."+itfName+"-external-"+Constants.MONITOR_CONTROLLER+"] to ["+ componentDestName+"."+Constants.MONITOR_CONTROLLER+"]");						
 								}
 								// do the NF binding
@@ -1045,11 +1051,11 @@ public class Remmos {
 							// then I should bind to internal monitoring interface of the parent
 							if(componentDest.equals(parent)) {
 								foundParent = true;
-								externalMonitor = (MonitorControl)componentDest.getFcInterface("internal-server-"+Constants.MONITOR_CONTROLLER);
+								externalMonitor = (MonitorController)componentDest.getFcInterface("internal-server-"+Constants.MONITOR_CONTROLLER);
 								logger.debug("   Binding ["+componentName+"."+itfName+"-external-"+Constants.MONITOR_CONTROLLER+"] to ["+ componentDestName+"."+"internal-server-"+Constants.MONITOR_CONTROLLER+"]");
 							}
 							else {
-								externalMonitor = (MonitorControl)componentDest.getFcInterface(Constants.MONITOR_CONTROLLER);
+								externalMonitor = (MonitorController)componentDest.getFcInterface(Constants.MONITOR_CONTROLLER);
 								logger.debug("   Binding ["+componentName+"."+itfName+"-external-"+Constants.MONITOR_CONTROLLER+"] to ["+ componentDestName+"."+Constants.MONITOR_CONTROLLER+"]");						
 							}
 							try {

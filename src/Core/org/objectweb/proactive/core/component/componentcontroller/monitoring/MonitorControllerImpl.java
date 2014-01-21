@@ -74,8 +74,8 @@ import org.objectweb.proactive.core.util.log.ProActiveLogger;
  * @author cruz
  * 
  */
-public class MonitorControlImpl extends AbstractPAComponentController implements
-		MonitorControl, BindingController {
+public class MonitorControllerImpl extends AbstractPAComponentController implements
+		MonitorController, BindingController {
 
 	private static final long serialVersionUID = 1L;
 
@@ -87,9 +87,9 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	private MetricsStore metricsStore = null;
 
 	// interfaces for monitors of internal and external components
-	private Map<String, MonitorControl> externalMonitors = new HashMap<String, MonitorControl>();
-	private Map<String, MonitorControl> internalMonitors = new HashMap<String, MonitorControl>();
-	private Map<String, MonitorControlMulticast> externalMonitorsMulticast = new HashMap<String, MonitorControlMulticast>();
+	private Map<String, MonitorController> externalMonitors = new HashMap<String, MonitorController>();
+	private Map<String, MonitorController> internalMonitors = new HashMap<String, MonitorController>();
+	private Map<String, MonitorControllerMulticast> externalMonitorsMulticast = new HashMap<String, MonitorControllerMulticast>();
 
 	private String basicItfs[] = {
 		Remmos.EVENT_CONTROL_ITF,
@@ -102,14 +102,14 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 
 	/** Monitoring cache */
 	private String hostComponentName;
-	private Map<String, MonitorControl> monitorsCache = new HashMap<String, MonitorControl>();
+	private Map<String, MonitorController> monitorsCache = new HashMap<String, MonitorController>();
 	private boolean debug = false;
 
 	
 	/**
 	 * Empty Builder
 	 */
-	public MonitorControlImpl() {
+	public MonitorControllerImpl() {
 		super();
 	}
 
@@ -194,11 +194,14 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		this.recordStore.init();
 		this.metricsStore.init();
 
-		for (MonitorControl in : internalMonitors.values())
+		for (MonitorController in : internalMonitors.values())
 			in.startGCMMonitoring();
-		for (MonitorControl ex : externalMonitors.values())
-			ex.startGCMMonitoring();
-		for (MonitorControlMulticast em : externalMonitorsMulticast.values())
+		for (String key : externalMonitors.keySet()) {
+			if (!key.startsWith("parent")) {
+				externalMonitors.get(key).startGCMMonitoring();
+			}
+		}
+		for (MonitorControllerMulticast em : externalMonitorsMulticast.values())
 			em.startMonitoring();
 	}
 
@@ -237,7 +240,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 
 		String localName = hostComponentName;
 		String destName = cr.getCalledComponent();
-		MonitorControl child = null;
+		MonitorController child = null;
 
 		rpLogger.debug("[" + localName + "] Record [" + id + "] "
 				+ cr.getCalledComponent() + "." + cr.getInterfaceName() + "."
@@ -368,7 +371,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 							+ destinationComponent + "]. Interface called: "
 							+ orr.getInterfaceName());
 					// find the appropriate monitor controller to call
-					MonitorControl mc = findMonitorControl(destinationComponent);
+					MonitorController mc = findMonitorControl(destinationComponent);
 					// assertion
 					if (mc == null)
 						System.out.println("[" + localName
@@ -506,8 +509,8 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	 * @param destName
 	 * @return
 	 */
-	private MonitorControl findMonitorControl(String destName) {
-		MonitorControl child = null;
+	private MonitorController findMonitorControl(String destName) {
+		MonitorController child = null;
 		String name;
 		// select the client interface (can be external or internal) where this
 		// component is connected
@@ -556,7 +559,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 				// gets all destination components (as objects) bound to this
 				// multicast itf
 				pamc = Utils.getPAMulticastController(this.hostComponent);
-				MonitorControlMulticast mcm = externalMonitorsMulticast.get(monitorItfName);
+				MonitorControllerMulticast mcm = externalMonitorsMulticast.get(monitorItfName);
 				rpLogger.debug("mcm is " + mcm.getClass().getName());
 				rpLogger.debug("PAInterface?" + (mcm instanceof PAInterface));
 				String externalMulticastItfName = ((PAInterface) mcm).getFcItfName();
@@ -576,7 +579,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 					if (destinationComponentName.equals(destName)) {
 						rpLogger.debug("[" + hostComponentName + "]  Found! (in multicast " + monitorItfName + ")");
 						try {
-							child = (MonitorControl) destinationComponent.getFcInterface(Constants.MONITOR_CONTROLLER);
+							child = (MonitorController) destinationComponent.getFcInterface(Constants.MONITOR_CONTROLLER);
 						} catch (NoSuchInterfaceException e) {
 							e.printStackTrace();
 						} finally {
@@ -605,6 +608,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	public void bindFc(String cItf, Object sItf)
 			throws NoSuchInterfaceException, IllegalBindingException,
 			IllegalLifeCycleException {
+
 		if (cItf.equals(Remmos.EVENT_CONTROL_ITF)) {
 			eventControl = (EventControl) sItf;
 		} else if (cItf.equals(Remmos.RECORD_STORE_ITF)) {
@@ -614,16 +618,16 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		} else if (cItf.endsWith("-external-" + Remmos.MONITOR_SERVICE_ITF)) {
 			// it refers to the monitoring interface of an external component (bound
 			// from an external client interface)
-			if (sItf instanceof MonitorControl) {
+			if (sItf instanceof MonitorController) {
 				// WARN: does not check if the corresponding external client
 				// interface exists in the host component
 				// The server interface maybe a Multicast. In that case, it must be
 				// cast appropriately.!!!
-				externalMonitors.put(cItf, (MonitorControl) sItf);
-			} else if (sItf instanceof MonitorControlMulticast) {
+				externalMonitors.put(cItf, (MonitorController) sItf);
+			} else if (sItf instanceof MonitorControllerMulticast) {
 				// System.out.println("   bindFc. Binding ["+cItf+"] to Multicast interface");
 				externalMonitorsMulticast.put(cItf,
-						(MonitorControlMulticast) sItf);
+						(MonitorControllerMulticast) sItf);
 			}
 		} else if (cItf.endsWith("-internal-" + Remmos.MONITOR_SERVICE_ITF)) {
 			// it refers to the monitoring interface of an internal component
@@ -631,7 +635,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		
 			// WARN: does not check if the corresponding internal server
 			// interface exists in the host component
-			internalMonitors.put(cItf, (MonitorControl) sItf);
+			internalMonitors.put(cItf, (MonitorController) sItf);
 		} else {
 			throw new NoSuchInterfaceException("Interface [" + cItf
 					+ "] not found ... Type received: " + sItf.getClass().getName());
@@ -744,7 +748,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 		}
 
 		String nextCompName = token.nextToken();
-		MonitorControl nextCompMon = monitorsCache.get(nextCompName);
+		MonitorController nextCompMon = monitorsCache.get(nextCompName);
 		if (nextCompMon == null)
 			nextCompMon = findMonitorControl(nextCompName);
 		if (nextCompMon == null) {
@@ -763,6 +767,26 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 	@Override
 	public Object runMetric(String name) {
 		return metricsStore.calculate(name);
+	}
+
+	@Override
+	public Object runMetric(String name, String itf) {
+		for (String key : internalMonitors.keySet()) {
+			if (key.equals(itf)) {
+				return internalMonitors.get(key).runMetric(name);
+			}
+		}
+		for (String key : externalMonitors.keySet()) {
+			if (key.equals(itf)) {
+				return externalMonitors.get(key).runMetric(name);
+			}
+		}
+		for (String key : externalMonitorsMulticast.keySet()) {
+			if (key.equals(itf)) {
+				return externalMonitorsMulticast.get(key).runMetric(name);
+			}
+		}
+		return null;
 	}
 
 	/*
@@ -805,7 +829,7 @@ public class MonitorControlImpl extends AbstractPAComponentController implements
 			return getMetricValue(name);
 		}
 		String nextCompName = token.nextToken();
-		MonitorControl nextCompMon = monitorsCache.get(nextCompName);
+		MonitorController nextCompMon = monitorsCache.get(nextCompName);
 		// Si el componente buscado no esta en el cache puede haber sido que
 		// se agregó la metrica usando otro path, igualmente valido.
 		if (nextCompMon == null) {

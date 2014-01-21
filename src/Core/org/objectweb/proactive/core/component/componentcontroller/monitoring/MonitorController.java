@@ -44,7 +44,7 @@ import org.objectweb.proactive.core.ProActiveRuntimeException;
 import org.objectweb.proactive.core.component.control.MethodStatistics;
 import org.objectweb.proactive.core.component.exceptions.NoSuchComponentException;
 
-public interface MonitorControl  {
+public interface MonitorController  {
 
 	//-------------------------------------------------------------------------
 	// GCM Monitoring API
@@ -144,6 +144,7 @@ public interface MonitorControl  {
     Object getMetricValue(String name, String compPath);
     
     Object runMetric(String name);
+    Object runMetric(String name, String compPath);
     //Object runMetric(String name, Object[] params);
     
     List<String> getMetricList();

@@ -8,7 +8,7 @@ import org.objectweb.proactive.core.component.ContentDescription;
 import org.objectweb.proactive.core.component.ControllerDescription;
 import org.objectweb.proactive.core.component.Utils;
 import org.objectweb.proactive.core.component.componentcontroller.analysis.AnalysisController;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 import org.objectweb.proactive.core.component.control.PAContentController;
 import org.objectweb.proactive.core.component.control.PAGCMLifeCycleController;
@@ -19,6 +19,8 @@ import org.objectweb.proactive.core.component.type.PAGCMInterfaceType;
 import org.objectweb.proactive.core.component.type.PAGCMTypeFactory;
 import org.objectweb.proactive.examples.components.mmultiplier.metrics.TasksPerMinute;
 import org.objectweb.proactive.examples.components.mmultiplier.metrics.WorkerTime;
+import org.objectweb.proactive.examples.components.mmultiplier.metrics.WorkersChange;
+import org.objectweb.proactive.examples.components.mmultiplier.rules.NumberOfWorkers;
 import org.objectweb.proactive.examples.components.mmultiplier.rules.TaskSolvingTimeThreshold;
 import org.objectweb.proactive.extra.component.fscript.control.PAReconfigurationController;
 
@@ -31,8 +33,8 @@ public class Main {
 	public static final int WORKERS = 1;
 	private static boolean MANAGED = true;
 	
-	public static final int N_INIT = 12;
-	public static final int N_END = 12;
+	public static final int N_INIT = 13;
+	public static final int N_END = 13;
 	public static final int B_INIT = 7;
 	public static final int B_END = 7;
 	public static final int TESTS = 1;
@@ -86,6 +88,14 @@ public class Main {
 		Utils.getPABindingController(master).bindFc(MMConstants.TASK_REPOSITORY_ITF, taskRepo.getFcInterface(MMConstants.TASK_REPOSITORY_ITF));
 		Utils.getPABindingController(master).bindFc(MMConstants.RESULT_REPOSITORY_ITF, resultRepo.getFcInterface(MMConstants.RESULT_REPOSITORY_ITF));
 		for(int i = 0; i < WORKERS; i++) {
+			PAMembraneController memW = Utils.getPAMembraneController(workers[i]);
+			memW.stopMembrane();
+			memW.nfBindFc(Remmos.MONITOR_SERVICE_COMP + ".parent"+"-external-"+Remmos.MONITOR_SERVICE_ITF, "parent"+"-external-"+Constants.MONITOR_CONTROLLER);
+			PAMembraneController memMM = Utils.getPAMembraneController(mmultiplier);
+			memMM.stopMembrane();
+			memMM.nfBindFc(MMConstants.WORKER_COMP + i + ".parent"+"-external-"+Constants.MONITOR_CONTROLLER, "internal-server-"+Constants.MONITOR_CONTROLLER);
+			memMM.startMembrane();
+			memW.startMembrane();
 			Utils.getPABindingController(master).bindFc(MMConstants.WORKER_MULTICAST_ITF, workers[i].getFcInterface(MMConstants.WORKER_ITF));
 			Utils.getPABindingController(workers[i]).bindFc(MMConstants.LOOPBACK_ITF, workers[i].getFcInterface(MMConstants.WORKER_ITF));
 			Utils.getPABindingController(workers[i]).bindFc(MMConstants.TASK_REPOSITORY_ITF, taskRepo.getFcInterface(MMConstants.TASK_REPOSITORY_ITF)); 
@@ -107,57 +117,39 @@ public class Main {
 		
 		// Mini test, para asegurarse que las cosas esten en orden.
 		Tester theTester = (Tester) tester.getFcInterface(MMConstants.TESTER_ITF);
-		//System.out.println("[MAIN] testing...");
-		//theTester.start(4, 4, 2, 2, 1);
-		final PAReconfigurationController reconfiguration = (PAReconfigurationController) mmultiplier.getFcInterface(Constants.RECONFIGURATION_CONTROLLER);
-	
+		System.out.println("[MAIN] testing...");
+		theTester.start(4, 4, 2, 2, 1);
+
 		/** MONITORING **/
-		MonitorControl monControl = null;
+		MonitorController monControl = null;
 		if (MANAGED) {
 			Remmos.enableMonitoring(mmultiplier);
-			monControl = (MonitorControl) mmultiplier.getFcInterface(Constants.MONITOR_CONTROLLER);
+			monControl = (MonitorController) mmultiplier.getFcInterface(Constants.MONITOR_CONTROLLER);
 			monControl.startMonitoring();
+			monControl.addMetric("workers-change", new WorkersChange(25000));
 			monControl.addMetric("tasksPerMinute", new TasksPerMinute(), "/" + MMConstants.MASTER_COMP + "/" + MMConstants.RESULT_REPOSITORY_COMP);
-			for(int i = 0; i < WORKERS; i++) {
+			for(int i = 0; i < WORKERS; i++)
 				monControl.addMetric("workerTime", new WorkerTime(), "/" + MMConstants.MASTER_COMP + "/" + MMConstants.WORKER_COMP + i);
-				AnalysisController analysis = (AnalysisController) workers[i].getFcInterface(Constants.ANALYSIS_CONTROLLER);
-				analysis.addRule("timeThreshold", new TaskSolvingTimeThreshold("/", "workerTime", 0.5));
-				analysis.analyze();
-			}
-			// Wait for monitors (necessary)
+		
 			Thread.sleep(5000);
 		}
-
+		
 		System.out.println("[MAIN] There are " + WORKERS + " workers... GO!");
 		theTester.start(N_INIT, N_END, B_INIT, B_END, TESTS);
 
-		(new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(25000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				try {
-					reconfiguration.execute("gcma = deploy-gcma(\"" + this.getClass().getResource("GCMA.xml").getPath() + "\");");
-					reconfiguration.execute("worker = gcm-new(\"org.objectweb.proactive.examples.components.mmultiplier.adl.Worker\", $gcma);");
-					reconfiguration.execute("set-name($worker, \"WorkerN\");");
-					reconfiguration.execute("stop($this);");
-					reconfiguration.execute("add($this, $worker);");
-					reconfiguration.execute("start($this);");
-					reconfiguration.execute("bind($worker/interface::task-repo-itf, $this/child::TaskRepo/interface::task-repo-itf);");
-					reconfiguration.execute("bind($worker/interface::result-repo-itf, $this/child::ResultRepo/interface::result-repo-itf);");
-					reconfiguration.execute("bind($worker/interface::loopback-itf, $worker/interface::worker-itf);");
-					reconfiguration.execute("start($worker)");
-					//+ "add($MatrixMultiplier, $worker);");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		})).start();
 
 		if(MANAGED) {
+			for(int i = 0; i < WORKERS; i++) {
+				AnalysisController analysis = (AnalysisController) workers[i].getFcInterface(Constants.ANALYSIS_CONTROLLER);
+				analysis.addRule("timeThreshold", new TaskSolvingTimeThreshold("/", "workerTime", 1.8));
+				analysis.setDelay(20000);
+				analysis.analyze();
+			}	
+			AnalysisController analysis = (AnalysisController) mmultiplier.getFcInterface(Constants.ANALYSIS_CONTROLLER);
+			analysis.addRule("number-of-workers", new NumberOfWorkers(250));
+			analysis.setDelay(40000);
+			analysis.analyze();	
+	
 			int counter = 0;
 			DecimalFormat df = new DecimalFormat();
 			df.setMaximumFractionDigits(3);

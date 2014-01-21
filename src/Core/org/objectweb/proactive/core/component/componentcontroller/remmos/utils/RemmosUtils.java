@@ -49,7 +49,7 @@ import org.objectweb.fractal.util.Fractal;
 import org.objectweb.proactive.core.component.Constants;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.OutgoingRequestRecord;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.ComponentRequestID;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.PathItem;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.RequestPath;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.IncomingRequestRecord;
@@ -115,8 +115,8 @@ public class RemmosUtils {
 		Map<ComponentRequestID, OutgoingRequestRecord> callLog = null;
 		
 		try {
-			requestLog = ((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getIncomingRequestLog();
-			callLog = ((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getOutgoingRequestLog();
+			requestLog = ((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getIncomingRequestLog();
+			callLog = ((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getOutgoingRequestLog();
 		} catch (NoSuchInterfaceException e) {
 			e.printStackTrace();
 		}
@@ -197,7 +197,7 @@ public class RemmosUtils {
 		List<String> notifs = null;
 		
 		try {
-			notifs = ((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getNotificationsReceived();
+			notifs = ((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getNotificationsReceived();
 		} catch (NoSuchInterfaceException e) {
 			e.printStackTrace();
 		}
@@ -221,7 +221,7 @@ public class RemmosUtils {
 		}
 		List<ComponentRequestID> requests = null;
 		try {
-			requests = ((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getListOfIncomingRequestIDs();
+			requests = ((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getListOfIncomingRequestIDs();
 		} catch (NoSuchInterfaceException e) {
 			e.printStackTrace();
 		}
@@ -244,7 +244,7 @@ public class RemmosUtils {
 		}
 		List<ComponentRequestID> calls = null;
 		try {
-			calls = ((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getListOfOutgoingRequestIDs();
+			calls = ((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getListOfOutgoingRequestIDs();
 		} catch (NoSuchInterfaceException e) {
 			e.printStackTrace();
 		}
@@ -309,7 +309,7 @@ public class RemmosUtils {
 		}
 		List<String> metricSet = null;
 		try {
-			metricSet = ((MonitorControl)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
+			metricSet = ((MonitorController)comp.getFcInterface(Constants.MONITOR_CONTROLLER)).getMetricList();
 		} catch (NoSuchInterfaceException e) {
 			e.printStackTrace();
 		}

@@ -46,13 +46,13 @@ import org.objectweb.fractal.api.control.IllegalBindingException;
 import org.objectweb.fractal.api.control.IllegalLifeCycleException;
 import org.objectweb.proactive.core.component.componentcontroller.AbstractPAComponentController;
 import org.objectweb.proactive.core.component.componentcontroller.monitoring.Metric;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 
 public class SLOStoreImpl extends AbstractPAComponentController implements
 		SLOStore, MetricsListener, BindingController {
 
-	private MonitorControl monitor;
+	private MonitorController monitor;
 	private SLANotifier slaNotifier;
 	
 	private Map<String, SLORule<?>> rules;
@@ -103,7 +103,7 @@ public class SLOStoreImpl extends AbstractPAComponentController implements
 			throws NoSuchInterfaceException, IllegalBindingException,
 			IllegalLifeCycleException {
 		if(itfName.equals(Remmos.MONITOR_SERVICE_ITF)) {
-			monitor = (MonitorControl) itf;
+			monitor = (MonitorController) itf;
 			return;
 		}
 		if(itfName.equals(Remmos.SLA_ALARM_ITF)) {

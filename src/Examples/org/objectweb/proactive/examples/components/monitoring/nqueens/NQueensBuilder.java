@@ -10,7 +10,7 @@ import org.objectweb.proactive.core.component.Constants;
 import org.objectweb.proactive.core.component.ContentDescription;
 import org.objectweb.proactive.core.component.ControllerDescription;
 import org.objectweb.proactive.core.component.Utils;
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 import org.objectweb.proactive.core.component.factory.PAGenericFactory;
 import org.objectweb.proactive.core.component.identity.PAComponent;
@@ -98,7 +98,7 @@ public class NQueensBuilder {
 				Utils.getPAGCMLifeCycleController(solver).startFc();
 				if(monitorable) {
 					Remmos.enableMonitoring(master);
-					MonitorControl monControl = (MonitorControl) master.getFcInterface(Constants.MONITOR_CONTROLLER);
+					MonitorController monControl = (MonitorController) master.getFcInterface(Constants.MONITOR_CONTROLLER);
 					monControl.startMonitoring();
 				}
 				return (initiated = true);
@@ -117,7 +117,7 @@ public class NQueensBuilder {
 			try {
 				Utils.getPAGCMLifeCycleController(master).stopFc();
 				if(monitorable) {
-					((MonitorControl) master.getFcInterface(Constants.MONITOR_CONTROLLER)).stopGCMMonitoring();
+					((MonitorController) master.getFcInterface(Constants.MONITOR_CONTROLLER)).stopGCMMonitoring();
 					Utils.getPAMembraneController(master).stopMembrane();
 				}
 				initiated = false;

@@ -3,7 +3,7 @@ package org.objectweb.proactive.core.component.componentcontroller.analysis;
 import java.io.Serializable;
 import java.util.List;
 
-import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorControl;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 
 public interface Rule extends Serializable {
 
@@ -13,7 +13,7 @@ public interface Rule extends Serializable {
 	 * @param monitor
 	 * @return	True si se cumple, de lo contrario, False.
 	 */
-	public boolean isSatisfied(MonitorControl monitor);
+	public boolean isSatisfied(MonitorController monitor);
 	
 	/**
 	 * Retorna informacion obtenida en la ultima revision de la regla

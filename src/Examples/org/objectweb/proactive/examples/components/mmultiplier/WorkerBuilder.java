@@ -10,6 +10,7 @@ import org.objectweb.fractal.api.type.InterfaceType;
 import org.objectweb.proactive.core.component.Constants;
 import org.objectweb.proactive.core.component.ContentDescription;
 import org.objectweb.proactive.core.component.ControllerDescription;
+import org.objectweb.proactive.core.component.componentcontroller.monitoring.MonitorController;
 import org.objectweb.proactive.core.component.componentcontroller.remmos.Remmos;
 import org.objectweb.proactive.core.component.factory.PAGenericFactory;
 import org.objectweb.proactive.core.component.type.PAGCMInterfaceType;
@@ -68,7 +69,18 @@ public class WorkerBuilder {
 		if (managed) {
 			nfItfType = Remmos.createMonitorableNFType(patf, fItfType, Constants.PRIMITIVE);
 		}
-
+		// ------------------------------------------------------------------
+		itfType = patf.createGCMItfType(
+				"parent"+"-external-"+Constants.MONITOR_CONTROLLER,
+				MonitorController.class.getName(),
+				PAGCMTypeFactory.CLIENT,
+				PAGCMTypeFactory.OPTIONAL,
+				PAGCMTypeFactory.SINGLETON_CARDINALITY);
+		PAGCMInterfaceType[] aux = new PAGCMInterfaceType[nfItfType.length + 1];
+		for (int i = 0; i < nfItfType.length; i++) aux[i] = nfItfType[i];
+		aux[nfItfType.length] = (PAGCMInterfaceType) itfType;
+		nfItfType = aux;
+		// -------------------------------------------------------------
 		ComponentType compType = patf.createFcType(fItfType, nfItfType);
 		ControllerDescription controllerDesc = new ControllerDescription(MMConstants.WORKER_COMP + id, Constants.PRIMITIVE);
 		ContentDescription contentDesc = new ContentDescription(WorkerImpl.class.getName());
